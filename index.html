@@ -35,8 +35,6 @@
       <a href="#personal-title"><span>3</span> Design</a>
       <span class="journey-arrow" aria-hidden="true">→</span>
       <a href="#preview-title"><span>4</span> Bestill</a>
-      <span class="journey-arrow" aria-hidden="true">→</span>
-      <a href="#share-design"><span>5</span> Motta og dele</a>
     </nav>
 
     <div class="designer-layout">
@@ -135,16 +133,15 @@
               </svg>
               <span>Togmotiv</span>
             </button>
-            <p class="motif-note">Et lite tog på platen — inspirert av gaveideen til sønnen.</p>
+            <p class="motif-note">Togmotivet vises på baksiden, separat fra toppingene.</p>
           </fieldset>
-          <label class="upload-label" for="image-upload">Bilde på platen (valgfritt)</label>
-          <label class="upload-control" for="image-upload">
+          <label class="upload-label">Bilde på platen (valgfritt)</label>
+          <button type="button" class="upload-control" id="open-image-picker">
             <span class="upload-icon" aria-hidden="true">↑</span>
-            <span><strong>Velg et bilde</strong><small>JPG, PNG eller WebP · vises lokalt i forhåndsvisningen</small></span>
-            <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
+            <span><strong>Velg et bilde</strong><small>Velg togdesignet eller et bilde fra enheten din</small></span>
           </label>
           <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
-          <p class="privacy-note">Bildet lastes ikke opp eller lagres i denne prototypen.</p>
+          <p class="privacy-note">Bildene lagres ikke eller lastes opp i prototypen. Bilde og togmotiv vises på baksiden, separat fra toppingene på forsiden. Snu platen i forhåndsvisningen for å se hver side.</p>
         </section>
       </div>
 
@@ -154,46 +151,118 @@
           <h2 id="preview-title">Din sjokoladeplate</h2>
         </div>
         <div class="preview-stage">
+          <p class="flip-hint" id="flip-hint" aria-live="polite">Forside · toppingene</p>
           <div class="chocolate-bar" id="chocolate-bar" aria-label="Melkesjokoladeplate">
-            <div class="chocolate-pieces" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
+            <div class="chocolate-bar__inner">
+              <div class="chocolate-face chocolate-face--front">
+                <div class="chocolate-pieces" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span><span></span><span></span>
+                  <span></span><span></span><span></span><span></span><span></span><span></span>
+                  <span></span><span></span><span></span><span></span><span></span><span></span>
+                  <span></span><span></span><span></span><span></span><span></span><span></span>
+                </div>
+                <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
+              </div>
+              <div class="chocolate-face chocolate-face--back">
+                <svg class="bar-motif" id="bar-motif" viewBox="0 0 240 120" aria-hidden="true" hidden>
+                  <path d="M44 37c-10-1-15-8-12-16 2-7 10-10 17-6 2-9 13-13 21-7 6-7 19-4 20 5 9-2 17 4 16 12 8 4 5 13-3 15H48c-2 0-3-1-4-3Z" class="train-steam"/>
+                  <path d="M48 50h12V35h-8v8h-4z" class="train-dark"/>
+                  <path d="M42 54c0-5 4-9 9-9h72c8 0 14 6 14 14v23H42z" class="train-body"/>
+                  <path d="M87 49V37h34c7 0 12 5 12 12v5H87z" class="train-body"/>
+                  <path d="M97 43h20c4 0 7 3 7 7v4H97z" class="train-window"/>
+                  <path d="M27 81h112v10H22v-5c0-3 2-5 5-5Z" class="train-body"/>
+                  <path d="m22 82-13 5 13 4z" class="train-dark"/>
+                  <path d="M135 61h57c7 0 12 5 12 12v9h-69z" class="train-body"/>
+                  <path d="M131 56h68c5 0 9 4 9 8v3h-77z" class="train-roof"/>
+                  <path d="M145 69h16v13h-16zm27 0h17v13h-17z" class="train-window"/>
+                  <path d="M130 82h79v8h-79z" class="train-body"/>
+                  <path d="M62 88a15 15 0 1 0 30 0m17 0a12 12 0 1 0 24 0m17 2a12 12 0 1 0 24 0m7 0a12 12 0 1 0 24 0" class="train-wheel"/>
+                  <path d="M70 88a7 7 0 1 0 14 0m23 0a5 5 0 1 0 10 0m18 2a5 5 0 1 0 10 0m19 0a5 5 0 1 0 10 0m7 0a5 5 0 1 0 10 0" class="train-wheel-inner"/>
+                  <path d="M13 100h203" class="train-rail"/>
+                </svg>
+                <img class="bar-image" id="bar-image" alt="" hidden>
+              </div>
             </div>
-            <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
-            <svg class="bar-motif" id="bar-motif" viewBox="0 0 240 120" aria-hidden="true" hidden>
-              <path d="M44 37c-10-1-15-8-12-16 2-7 10-10 17-6 2-9 13-13 21-7 6-7 19-4 20 5 9-2 17 4 16 12 8 4 5 13-3 15H48c-2 0-3-1-4-3Z" class="train-steam"/>
-              <path d="M48 50h12V35h-8v8h-4z" class="train-dark"/>
-              <path d="M42 54c0-5 4-9 9-9h72c8 0 14 6 14 14v23H42z" class="train-body"/>
-              <path d="M87 49V37h34c7 0 12 5 12 12v5H87z" class="train-body"/>
-              <path d="M97 43h20c4 0 7 3 7 7v4H97z" class="train-window"/>
-              <path d="M27 81h112v10H22v-5c0-3 2-5 5-5Z" class="train-body"/>
-              <path d="m22 82-13 5 13 4z" class="train-dark"/>
-              <path d="M135 61h57c7 0 12 5 12 12v9h-69z" class="train-body"/>
-              <path d="M131 56h68c5 0 9 4 9 8v3h-77z" class="train-roof"/>
-              <path d="M145 69h16v13h-16zm27 0h17v13h-17z" class="train-window"/>
-              <path d="M130 82h79v8h-79z" class="train-body"/>
-              <path d="M62 88a15 15 0 1 0 30 0m17 0a12 12 0 1 0 24 0m17 2a12 12 0 1 0 24 0m7 0a12 12 0 1 0 24 0" class="train-wheel"/>
-              <path d="M70 88a7 7 0 1 0 14 0m23 0a5 5 0 1 0 10 0m18 2a5 5 0 1 0 10 0m19 0a5 5 0 1 0 10 0m7 0a5 5 0 1 0 10 0" class="train-wheel-inner"/>
-              <path d="M13 100h203" class="train-rail"/>
-            </svg>
-            <img class="bar-image" id="bar-image" alt="" hidden>
           </div>
+          <button type="button" class="flip-button" id="flip-chocolate" hidden aria-pressed="false">↻ Snu sjokoladen</button>
         </div>
         <div class="preview-details">
           <strong id="preview-chocolate">Melkesjokolade</strong>
           <p id="preview-toppings">Uten topping</p>
           <div class="price-row"><span>Eksempelpris</span><strong id="preview-price">179 kr</strong></div>
-          <button type="button" class="order-button" id="order-button">Bestill <span aria-hidden="true">→</span></button>
-          <button type="button" class="share-button" id="share-design">Del designet</button>
+          <a class="order-button order-button--link" id="order-button" href="bestilling.html">Bestill <span aria-hidden="true">→</span></a>
+          <button type="button" class="share-button" id="share-design">Del bilde</button>
           <p class="price-note">Eksempelpriser: base 179 kr · noen toppinger +9 kr · bilde +29 kr</p>
-          <p class="order-disclaimer">Prototype – bestillingsknappen sender ingen bestilling.</p>
-          <p class="delivery-note">Betaling, leveringstid, sporing og ordrebekreftelse er ikke koblet til ennå.</p>
+          <p class="order-disclaimer">Prototype – bestillingen lagres eller sendes ikke.</p>
         </div>
       </aside>
     </div>
   </main>
+
+  <dialog class="image-picker-dialog" id="image-picker-dialog" aria-labelledby="image-picker-title">
+    <div class="image-picker">
+      <div class="image-picker__header">
+        <div>
+          <p class="eyebrow">Bilde på sjokoladen</p>
+          <h2 id="image-picker-title">Velg et bilde</h2>
+        </div>
+        <button type="button" class="close-button" id="close-image-picker" aria-label="Lukk bildevalg">×</button>
+      </div>
+      <p class="image-picker__intro">Velg et motiv til baksiden. Toppingene blir værende på forsiden.</p>
+      <article class="image-choice">
+        <img src="assets/togmotiv-valg.png" alt="Fargerik illustrasjon av et tog">
+        <div class="image-choice__details">
+          <div>
+            <h3>Togsjokolade</h3>
+            <p>Se toget som et motiv på baksiden av sjokoladeplaten.</p>
+          </div>
+          <button type="button" class="order-button" id="choose-train-image">Bruk dette toget</button>
+        </div>
+      </article>
+      <div class="image-picker__own">
+        <label class="upload-control" for="image-upload">
+          <span class="upload-icon" aria-hidden="true">＋</span>
+          <span><strong>Velg eget bilde</strong><small>JPG, PNG eller WebP fra enheten din</small></span>
+          <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+      </div>
+      <p class="privacy-note">Bildet vises bare i denne prototypen og lastes ikke opp eller lagres.</p>
+    </div>
+  </dialog>
+
+  <dialog class="share-dialog" id="share-dialog" aria-labelledby="share-dialog-title">
+    <div class="share-dialog__content">
+      <div class="share-dialog__header">
+        <div>
+          <p class="eyebrow">Del designet ditt</p>
+          <h2 id="share-dialog-title">Del sjokoladeplaten</h2>
+        </div>
+        <button type="button" class="close-button" id="close-share" aria-label="Lukk deling">×</button>
+      </div>
+      <p class="share-image-loading" id="share-image-loading" role="status">Lager bilde av sjokoladeplaten …</p>
+      <img class="share-image-preview" id="share-image-preview" alt="Bilde av sjokoladeplaten din" hidden>
+      <div class="social-share-buttons" role="group" aria-label="Velg app">
+        <button type="button" data-share-target="Instagram" disabled>
+          <svg class="social-icon social-icon--instagram" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="social-icon__dot" cx="18" cy="6" r="1"/></svg>
+          <span>Instagram</span>
+        </button>
+        <button type="button" data-share-target="Facebook" disabled>
+          <svg class="social-icon social-icon--facebook" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 21v-8h3l.5-3H14V8c0-.9.4-1.5 1.6-1.5H18V3.2c-.8-.1-1.7-.2-2.8-.2C12.4 3 11 4.7 11 7.7V10H8v3h3v8z"/></svg>
+          <span>Facebook</span>
+        </button>
+        <button type="button" data-share-target="WhatsApp" disabled>
+          <svg class="social-icon social-icon--whatsapp" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.7L3 21l4.5-1.2A9 9 0 1 0 12 3Z"/><path class="social-icon__cutout" d="M9 8.2c-.3-.6-.6-.6-.9-.6-.2 0-.5 0-.7.3-.3.3-.9.9-.9 2.2s1 2.6 1.1 2.8c.2.2 1.9 3.1 4.7 4.2 2.3.9 2.8.7 3.3.6.5-.1 1.6-.7 1.8-1.3.2-.7.2-1.2.1-1.3-.1-.1-.3-.2-.7-.4l-2-.9c-.3-.1-.5-.2-.7.2s-.8.9-1 1.1c-.2.2-.4.3-.7.1-.4-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.4 0-.5.2-.7l.5-.6.3-.5c.1-.2 0-.4 0-.6z"/></svg>
+          <span>WhatsApp</span>
+        </button>
+        <button type="button" class="share-more-button" id="share-more" disabled>
+          <svg class="social-icon social-icon--more" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <span>Flere apper</span>
+        </button>
+      </div>
+      <p class="share-dialog__hint">Velg hvor du vil dele bildet. Hvis appen ikke kan åpnes direkte, lastes bildet ned så du kan legge det ved selv.</p>
+      <button type="button" class="share-download" id="download-design" disabled>Last ned bilde</button>
+    </div>
+  </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>

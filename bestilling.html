@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#faefe2">
+  <title>Bestilling — Sjokoladefabrikken</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="bestilling.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Tilbake til sjokoladedesigneren">
+      <span class="brand__star" aria-hidden="true">✦</span>
+      <span>Marsipan- og sjokoladefabrikken</span>
+    </a>
+    <span class="header-note">Posebyen · Kristiansand</span>
+  </header>
+
+  <main class="order-page">
+    <a class="back-link" href="index.html">← Tilbake til designeren</a>
+    <section class="order-page__card" aria-labelledby="order-page-title">
+      <p class="eyebrow">Bestilling</p>
+      <h1 id="order-page-title">Gjør bestillingen din klar</h1>
+      <p class="order-page__intro">Se over sjokoladeplaten din og fyll inn kontaktinformasjon.</p>
+
+      <div class="order-page__summary" aria-label="Oppsummering av sjokoladeplaten">
+        <h2>Din sjokoladeplate</h2>
+        <p id="order-design">Laster design …</p>
+        <p id="order-motif" hidden></p>
+        <p id="order-image" hidden></p>
+        <div class="price-row"><span>Eksempelpris</span><strong id="order-price"></strong></div>
+      </div>
+
+      <form class="order-page__form" id="order-form">
+        <label for="customer-name">Navn</label>
+        <input id="customer-name" name="name" autocomplete="name" required>
+        <label for="customer-email">E-post</label>
+        <input id="customer-email" name="email" type="email" autocomplete="email" required>
+        <label for="fulfillment">Henting eller levering</label>
+        <select id="fulfillment" name="fulfillment">
+          <option value="Henting i Posebyen">Henting i Posebyen</option>
+          <option value="Levering">Levering</option>
+        </select>
+        <label for="order-note">Kommentar (valgfritt)</label>
+        <textarea id="order-note" name="note" rows="3" placeholder="For eksempel ønsket hentetid"></textarea>
+        <p class="order-demo-note">Dette er en prototype. Bestillingen sendes eller lagres ikke.</p>
+        <button type="submit" class="order-button">Bekreft demo-bestilling</button>
+      </form>
+
+      <section class="order-page__confirmation" id="order-confirmation" aria-live="polite" hidden>
+        <h2>Takk, <span id="confirmation-name"></span>!</h2>
+        <p id="confirmation-details"></p>
+        <p class="order-demo-note">Dette er bare en demonstrasjon. Bestillingen er ikke sendt eller lagret.</p>
+        <a class="order-button order-button--link" href="index.html">Tilbake til designeren</a>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

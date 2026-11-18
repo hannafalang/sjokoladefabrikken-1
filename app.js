@@ -34,12 +34,17 @@ const state = {
   filter: "Alle",
   query: "",
   imageUrl: null,
+  ownsImageUrl: false,
+  demoImage: false,
   trainMotif: false,
+  previewBack: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
 const toppingGrid = $("#topping-options");
 let toastTimeout;
+let shareImageUrl;
+let shareImageFile;
 
 function createToppingShape(topping, preview = false) {
   const shape = document.createElement("span");
@@ -105,11 +110,21 @@ function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
+  const hasBackDesign = Boolean(state.imageUrl || state.trainMotif);
+  if (!hasBackDesign) state.previewBack = false;
   bar.style.setProperty("--bar-light", light);
   bar.style.setProperty("--bar-dark", dark);
   bar.style.setProperty("--piece-light", light);
   bar.style.setProperty("--piece-dark", piece);
-  bar.setAttribute("aria-label", `${chocolate.name}plate`);
+  bar.classList.toggle("is-flipped", state.previewBack);
+  bar.setAttribute("aria-label", `${chocolate.name}plate, ${state.previewBack ? "bakside" : "forside"}`);
+  $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
+  $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
+  $("#flip-hint").textContent = state.previewBack
+    ? `Bakside · ${state.imageUrl ? (state.demoImage ? "togbildet" : "bildet") : "togmotivet"}`
+    : "Forside · toppingene";
+  $("#flip-chocolate").hidden = !hasBackDesign;
+  $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
   $("#preview-chocolate").textContent = chocolate.name;
 
   const selected = toppings.filter((topping) => state.selectedToppings.has(topping.name));
@@ -126,11 +141,30 @@ function updatePreview() {
       return piece;
     }));
   $("#bar-toppings").replaceChildren(...pieces);
-  $("#bar-motif").toggleAttribute("hidden", !state.trainMotif);
+  $("#bar-motif").toggleAttribute("hidden", !state.trainMotif || Boolean(state.imageUrl));
 
   const paidToppings = selected.filter((topping) => topping.paid).length;
   const imageFee = state.imageUrl ? 29 : 0;
   $("#preview-price").textContent = `${179 + paidToppings * 9 + imageFee} kr`;
+}
+
+function releaseUploadedImage() {
+  if (state.ownsImageUrl && state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+}
+
+function setSelectedImage(url, ownsObjectUrl = false, demoImage = false) {
+  releaseUploadedImage();
+  state.imageUrl = url;
+  state.ownsImageUrl = ownsObjectUrl;
+  state.demoImage = demoImage;
+  state.previewBack = true;
+  $("#bar-image").src = url;
+  $("#bar-image").alt = demoImage
+    ? "Eksempelbilde av sjokoladeplate med togmotiv"
+    : "Valgt bilde på baksiden av sjokoladeplaten";
+  $("#bar-image").hidden = false;
+  $("#remove-image").hidden = false;
+  updatePreview();
 }
 
 function showToast(message) {
@@ -139,6 +173,245 @@ function showToast(message) {
   toast.hidden = false;
   window.clearTimeout(toastTimeout);
   toastTimeout = window.setTimeout(() => { toast.hidden = true; }, 5000);
+}
+
+function drawRoundedRect(context, x, y, width, height, radius) {
+  context.beginPath();
+  if (typeof context.roundRect === "function") {
+    context.roundRect(x, y, width, height, radius);
+    return;
+  }
+  context.moveTo(x + radius, y);
+  context.lineTo(x + width - radius, y);
+  context.quadraticCurveTo(x + width, y, x + width, y + radius);
+  context.lineTo(x + width, y + height - radius);
+  context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  context.lineTo(x + radius, y + height);
+  context.quadraticCurveTo(x, y + height, x, y + height - radius);
+  context.lineTo(x, y + radius);
+  context.quadraticCurveTo(x, y, x + radius, y);
+  context.closePath();
+}
+
+function drawTrainMotif(context, centerX, centerY) {
+  context.save();
+  context.translate(centerX - 175, centerY - 55);
+  context.fillStyle = "rgba(255, 226, 190, .88)";
+  context.strokeStyle = "rgba(72, 32, 19, .85)";
+  context.lineWidth = 8;
+  drawRoundedRect(context, 0, 30, 235, 82, 16);
+  context.fill();
+  context.stroke();
+  drawRoundedRect(context, 112, 7, 85, 55, 12);
+  context.fill();
+  context.stroke();
+  context.fillStyle = "#52291c";
+  context.fillRect(127, 19, 28, 25);
+  context.fillRect(163, 19, 23, 25);
+  context.fillStyle = "rgba(255, 226, 190, .88)";
+  context.beginPath();
+  context.arc(55, 112, 19, 0, Math.PI * 2);
+  context.arc(173, 112, 19, 0, Math.PI * 2);
+  context.fill();
+  context.stroke();
+  context.restore();
+}
+
+async function createDesignImage() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 820;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Kunne ikke lage et bilde av designet.");
+
+  context.fillStyle = "#faefe2";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#361c1b";
+  context.font = "700 48px Georgia, serif";
+  context.fillText("Min sjokoladeplate", 80, 90);
+  context.fillStyle = "#6e5d58";
+  context.font = "24px Arial, sans-serif";
+  context.fillText(chocolates[state.chocolate].name, 82, 132);
+
+  const barX = 105;
+  const barY = 190;
+  const barWidth = 990;
+  const barHeight = 470;
+  const [light, dark, piece] = chocolates[state.chocolate].colors;
+  drawRoundedRect(context, barX, barY, barWidth, barHeight, 30);
+  const barGradient = context.createLinearGradient(barX, barY, barX + barWidth, barY + barHeight);
+  barGradient.addColorStop(0, light);
+  barGradient.addColorStop(1, dark);
+  context.fillStyle = barGradient;
+  context.fill();
+  context.strokeStyle = "rgba(76, 43, 32, .48)";
+  context.lineWidth = 7;
+  context.stroke();
+
+  if (state.previewBack && state.imageUrl) {
+    const image = new Image();
+    image.src = state.imageUrl;
+    await image.decode();
+    context.save();
+    drawRoundedRect(context, barX, barY, barWidth, barHeight, 30);
+    context.clip();
+    context.drawImage(image, barX, barY, barWidth, barHeight);
+    context.restore();
+  } else {
+    const padding = 22;
+    const gap = 10;
+    const cellWidth = (barWidth - padding * 2 - gap * 5) / 6;
+    const cellHeight = (barHeight - padding * 2 - gap * 3) / 4;
+    for (let row = 0; row < 4; row += 1) {
+      for (let column = 0; column < 6; column += 1) {
+        const x = barX + padding + column * (cellWidth + gap);
+        const y = barY + padding + row * (cellHeight + gap);
+        drawRoundedRect(context, x, y, cellWidth, cellHeight, 13);
+        const cellGradient = context.createLinearGradient(x, y, x + cellWidth, y + cellHeight);
+        cellGradient.addColorStop(0, light);
+        cellGradient.addColorStop(1, piece);
+        context.fillStyle = cellGradient;
+        context.fill();
+        context.strokeStyle = "rgba(64, 35, 27, .3)";
+        context.lineWidth = 2;
+        context.stroke();
+      }
+    }
+
+    if (!state.previewBack) {
+      const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
+      selectedToppings.forEach((topping, toppingIndex) => {
+        for (let index = 0; index < 4; index += 1) {
+          const x = barX + 55 + ((index * 227 + toppingIndex * 173) % (barWidth - 110));
+          const y = barY + 45 + ((index * 131 + toppingIndex * 97) % (barHeight - 90));
+          const radius = 16 + ((index + toppingIndex) % 4) * 2;
+          context.beginPath();
+          context.arc(x, y, radius, 0, Math.PI * 2);
+          context.fillStyle = topping.color;
+          context.fill();
+          context.strokeStyle = "rgba(67, 39, 29, .45)";
+          context.lineWidth = 3;
+          context.stroke();
+          context.beginPath();
+          context.arc(x - radius / 3, y - radius / 3, 4, 0, Math.PI * 2);
+          context.fillStyle = "rgba(255, 255, 255, .55)";
+          context.fill();
+        }
+      });
+    }
+
+    if (state.previewBack && state.trainMotif) {
+      drawTrainMotif(context, barX + barWidth / 2, barY + barHeight / 2);
+    }
+  }
+
+  context.strokeStyle = "rgba(76, 43, 32, .48)";
+  context.lineWidth = 7;
+  drawRoundedRect(context, barX, barY, barWidth, barHeight, 30);
+  context.stroke();
+
+  const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
+  const sideDescription = state.previewBack
+    ? state.imageUrl ? (state.demoImage ? "Bakside · togbilde" : "Bakside · bilde") : "Bakside · togmotiv"
+    : selectedToppings.length ? selectedToppings.map((topping) => topping.name).join(" · ") : "Forside · uten topping";
+  context.fillStyle = "#361c1b";
+  context.font = "600 22px Arial, sans-serif";
+  context.fillText(sideDescription, 82, 715, 1035);
+  context.font = "700 25px Arial, sans-serif";
+  context.textAlign = "right";
+  context.fillText(`Eksempelpris ${$("#preview-price").textContent}`, 1118, 765);
+  context.textAlign = "left";
+
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((result) => {
+      if (result) resolve(result);
+      else reject(new Error("Kunne ikke eksportere bildet."));
+    }, "image/png");
+  });
+  return new File([blob], "min-sjokoladeplate.png", { type: "image/png" });
+}
+
+function downloadDesignImage(file) {
+  const url = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = file.name;
+  link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function getDesignDescription() {
+  const chocolate = chocolates[state.chocolate].name;
+  const selected = [...state.selectedToppings];
+  return `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}${state.trainMotif ? " og togmotiv" : ""}. Eksempelpris ${$("#preview-price").textContent}.`;
+}
+
+async function openShareDialog() {
+  const dialog = $("#share-dialog");
+  const preview = $("#share-image-preview");
+  const controls = [...dialog.querySelectorAll("button[data-share-target], #share-more, #download-design")];
+  if (shareImageUrl) URL.revokeObjectURL(shareImageUrl);
+  shareImageFile = null;
+  preview.hidden = true;
+  $("#share-image-loading").hidden = false;
+  controls.forEach((button) => { button.disabled = true; });
+  dialog.showModal();
+
+  try {
+    const file = await createDesignImage();
+    if (!dialog.open) return;
+    shareImageFile = file;
+    shareImageUrl = URL.createObjectURL(shareImageFile);
+    preview.src = shareImageUrl;
+    preview.hidden = false;
+    $("#share-image-loading").hidden = true;
+    controls.forEach((button) => { button.disabled = false; });
+  } catch (error) {
+    $("#share-image-loading").textContent = error instanceof Error
+      ? error.message
+      : "Kunne ikke lage bildet av designet.";
+  }
+}
+
+function closeShareDialog() {
+  $("#share-dialog").close();
+  if (shareImageUrl) URL.revokeObjectURL(shareImageUrl);
+  shareImageUrl = null;
+  shareImageFile = null;
+  $("#share-image-preview").removeAttribute("src");
+}
+
+async function shareWithOtherApps() {
+  if (!shareImageFile) return;
+  if (navigator.share && navigator.canShare?.({ files: [shareImageFile] })) {
+    try {
+      await navigator.share({
+        files: [shareImageFile],
+        title: "Min sjokoladeplate",
+        text: getDesignDescription(),
+      });
+    } catch (error) {
+      if (!(error instanceof Error && error.name === "AbortError")) {
+        showToast("Kunne ikke dele bildet akkurat nå.");
+      }
+    }
+    return;
+  }
+
+  downloadDesignImage(shareImageFile);
+  showToast("Bildet er lastet ned, klart til å deles i en annen app.");
+}
+
+function shareWithPlatform(platform) {
+  if (!shareImageFile) return;
+  const platformUrls = {
+    Instagram: "https://www.instagram.com/",
+    Facebook: "https://www.facebook.com/",
+    WhatsApp: "https://web.whatsapp.com/",
+  };
+  downloadDesignImage(shareImageFile);
+  window.open(platformUrls[platform], "_blank", "noopener,noreferrer");
+  showToast(`Bildet er lastet ned. Velg bildet fra enheten din når du deler på ${platform}.`);
 }
 
 function appendChatMessage(text, sender) {
@@ -221,18 +494,36 @@ $("#image-upload").addEventListener("change", (event) => {
     event.target.value = "";
     return;
   }
-  if (state.imageUrl) URL.revokeObjectURL(state.imageUrl);
-  state.imageUrl = URL.createObjectURL(file);
-  $("#bar-image").src = state.imageUrl;
-  $("#bar-image").hidden = false;
-  $("#remove-image").hidden = false;
-  updatePreview();
+  setSelectedImage(URL.createObjectURL(file), true);
+  $("#image-picker-dialog").close();
+});
+
+$("#open-image-picker").addEventListener("click", () => {
+  $("#image-picker-dialog").showModal();
+});
+
+$("#close-image-picker").addEventListener("click", () => {
+  $("#image-picker-dialog").close();
+});
+
+$("#image-picker-dialog").addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) event.currentTarget.close();
+});
+
+$("#choose-train-image").addEventListener("click", () => {
+  $("#image-upload").value = "";
+  setSelectedImage("./assets/sjokoladetog-demo.png", false, true);
+  $("#image-picker-dialog").close();
 });
 
 $("#remove-image").addEventListener("click", () => {
-  if (state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+  releaseUploadedImage();
   state.imageUrl = null;
+  state.ownsImageUrl = false;
+  state.demoImage = false;
+  state.previewBack = state.trainMotif;
   $("#bar-image").removeAttribute("src");
+  $("#bar-image").alt = "";
   $("#bar-image").hidden = true;
   $("#remove-image").hidden = true;
   $("#image-upload").value = "";
@@ -242,7 +533,14 @@ $("#remove-image").addEventListener("click", () => {
 $("#train-motif").addEventListener("click", (event) => {
   state.trainMotif = !state.trainMotif;
   event.currentTarget.setAttribute("aria-pressed", String(state.trainMotif));
-  $("#bar-motif").toggleAttribute("hidden", !state.trainMotif);
+  if (state.trainMotif) state.previewBack = true;
+  else if (!state.imageUrl) state.previewBack = false;
+  updatePreview();
+});
+
+$("#flip-chocolate").addEventListener("click", () => {
+  state.previewBack = !state.previewBack;
+  updatePreview();
 });
 
 $("#professor-toggle").addEventListener("click", () => {
@@ -276,38 +574,32 @@ $("#chat-form").addEventListener("submit", (event) => {
   appendChatMessage(answer, "professor");
 });
 
-$("#order-button").addEventListener("click", () => {
-  showToast("Bestilling og betaling er ikke koblet til ennå. Designet ditt er klart som forhåndsvisning.");
+$("#order-button").addEventListener("click", (event) => {
+  event.preventDefault();
+  const params = new URLSearchParams({
+    chocolate: chocolates[state.chocolate].name,
+    toppings: [...state.selectedToppings].join(", "),
+    motif: state.trainMotif ? "togmotiv" : "",
+    image: state.imageUrl ? (state.demoImage ? "togbilde" : "eget bilde") : "",
+    price: $("#preview-price").textContent,
+  });
+  window.location.href = `bestilling.html?${params}`;
 });
 
-$("#share-design").addEventListener("click", async () => {
-  const chocolate = chocolates[state.chocolate].name;
-  const selected = [...state.selectedToppings];
-  const description = `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}${state.trainMotif ? " og togmotiv" : ""}. Eksempelpris ${$("#preview-price").textContent}.`;
-
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: "Min sjokoladeplate", text: description });
-    } catch (error) {
-      if (!(error instanceof Error && error.name === "AbortError")) {
-        showToast("Kunne ikke dele designet akkurat nå.");
-      }
-    }
-    return;
-  }
-
-  if (!navigator.clipboard?.writeText) {
-    showToast("Deling er ikke tilgjengelig i denne nettleseren.");
-    return;
-  }
-
-  try {
-    await navigator.clipboard.writeText(description);
-    showToast("Beskrivelsen av designet er kopiert.");
-  } catch {
-    showToast("Kunne ikke kopiere designet. Prøv igjen i en nettleser med kopiering aktivert.");
-  }
+$("#share-design").addEventListener("click", openShareDialog);
+$("#close-share").addEventListener("click", closeShareDialog);
+$("#share-dialog").addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) closeShareDialog();
 });
+$("#download-design").addEventListener("click", () => {
+  if (!shareImageFile) return;
+  downloadDesignImage(shareImageFile);
+  showToast("Bildet av sjokoladeplaten er lastet ned.");
+});
+document.querySelectorAll("[data-share-target]").forEach((button) => {
+  button.addEventListener("click", () => shareWithPlatform(button.dataset.shareTarget));
+});
+$("#share-more").addEventListener("click", shareWithOtherApps);
 
 renderToppings();
 updatePreview();
