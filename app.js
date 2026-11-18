@@ -34,6 +34,7 @@ const state = {
   filter: "Alle",
   query: "",
   imageUrl: null,
+  trainMotif: false,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -125,6 +126,7 @@ function updatePreview() {
       return piece;
     }));
   $("#bar-toppings").replaceChildren(...pieces);
+  $("#bar-motif").toggleAttribute("hidden", !state.trainMotif);
 
   const paidToppings = selected.filter((topping) => topping.paid).length;
   const imageFee = state.imageUrl ? 29 : 0;
@@ -237,6 +239,12 @@ $("#remove-image").addEventListener("click", () => {
   updatePreview();
 });
 
+$("#train-motif").addEventListener("click", (event) => {
+  state.trainMotif = !state.trainMotif;
+  event.currentTarget.setAttribute("aria-pressed", String(state.trainMotif));
+  $("#bar-motif").toggleAttribute("hidden", !state.trainMotif);
+});
+
 $("#professor-toggle").addEventListener("click", () => {
   const panel = $("#professor-panel");
   panel.hidden = !panel.hidden;
@@ -269,7 +277,36 @@ $("#chat-form").addEventListener("submit", (event) => {
 });
 
 $("#order-button").addEventListener("click", () => {
-  showToast("Dette er en prototype, så ingen bestilling blir sendt.");
+  showToast("Bestilling og betaling er ikke koblet til ennå. Designet ditt er klart som forhåndsvisning.");
+});
+
+$("#share-design").addEventListener("click", async () => {
+  const chocolate = chocolates[state.chocolate].name;
+  const selected = [...state.selectedToppings];
+  const description = `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}${state.trainMotif ? " og togmotiv" : ""}. Eksempelpris ${$("#preview-price").textContent}.`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "Min sjokoladeplate", text: description });
+    } catch (error) {
+      if (!(error instanceof Error && error.name === "AbortError")) {
+        showToast("Kunne ikke dele designet akkurat nå.");
+      }
+    }
+    return;
+  }
+
+  if (!navigator.clipboard?.writeText) {
+    showToast("Deling er ikke tilgjengelig i denne nettleseren.");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(description);
+    showToast("Beskrivelsen av designet er kopiert.");
+  } catch {
+    showToast("Kunne ikke kopiere designet. Prøv igjen i en nettleser med kopiering aktivert.");
+  }
 });
 
 renderToppings();
