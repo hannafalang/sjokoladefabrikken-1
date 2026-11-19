@@ -112,36 +112,13 @@
 
         <section class="builder-card personal-card" aria-labelledby="personal-title">
           <h2 id="personal-title">3. Gjør platen personlig</h2>
-          <fieldset class="motif-picker">
-            <legend>Velg motiv</legend>
-            <button type="button" class="motif-option" id="train-motif" aria-pressed="false">
-              <svg viewBox="0 0 240 120" aria-hidden="true">
-                <path d="M44 37c-10-1-15-8-12-16 2-7 10-10 17-6 2-9 13-13 21-7 6-7 19-4 20 5 9-2 17 4 16 12 8 4 5 13-3 15H48c-2 0-3-1-4-3Z" class="train-steam"/>
-                <path d="M48 50h12V35h-8v8h-4z" class="train-dark"/>
-                <path d="M42 54c0-5 4-9 9-9h72c8 0 14 6 14 14v23H42z" class="train-body"/>
-                <path d="M87 49V37h34c7 0 12 5 12 12v5H87z" class="train-body"/>
-                <path d="M97 43h20c4 0 7 3 7 7v4H97z" class="train-window"/>
-                <path d="M27 81h112v10H22v-5c0-3 2-5 5-5Z" class="train-body"/>
-                <path d="m22 82-13 5 13 4z" class="train-dark"/>
-                <path d="M135 61h57c7 0 12 5 12 12v9h-69z" class="train-body"/>
-                <path d="M131 56h68c5 0 9 4 9 8v3h-77z" class="train-roof"/>
-                <path d="M145 69h16v13h-16zm27 0h17v13h-17z" class="train-window"/>
-                <path d="M130 82h79v8h-79z" class="train-body"/>
-                <path d="M62 88a15 15 0 1 0 30 0m17 0a12 12 0 1 0 24 0m17 2a12 12 0 1 0 24 0m7 0a12 12 0 1 0 24 0" class="train-wheel"/>
-                <path d="M70 88a7 7 0 1 0 14 0m23 0a5 5 0 1 0 10 0m18 2a5 5 0 1 0 10 0m19 0a5 5 0 1 0 10 0m7 0a5 5 0 1 0 10 0" class="train-wheel-inner"/>
-                <path d="M13 100h203" class="train-rail"/>
-              </svg>
-              <span>Togmotiv</span>
-            </button>
-            <p class="motif-note">Togmotivet vises på baksiden, separat fra toppingene.</p>
-          </fieldset>
           <label class="upload-label">Bilde på platen (valgfritt)</label>
           <button type="button" class="upload-control" id="open-image-picker">
             <span class="upload-icon" aria-hidden="true">↑</span>
-            <span><strong>Velg et bilde</strong><small>Velg togdesignet eller et bilde fra enheten din</small></span>
+            <span><strong>Velg et motiv</strong><small>Velg blant tre motiver eller et bilde fra enheten din</small></span>
           </label>
           <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
-          <p class="privacy-note">Bildene lagres ikke eller lastes opp i prototypen. Bilde og togmotiv vises på baksiden, separat fra toppingene på forsiden. Snu platen i forhåndsvisningen for å se hver side.</p>
+          <p class="privacy-note">Bildene lagres ikke eller lastes opp i prototypen. Bildet vises på baksiden, separat fra toppingene på forsiden. Snu platen i forhåndsvisningen for å se hver side.</p>
         </section>
       </div>
 
@@ -164,22 +141,6 @@
                 <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
               </div>
               <div class="chocolate-face chocolate-face--back">
-                <svg class="bar-motif" id="bar-motif" viewBox="0 0 240 120" aria-hidden="true" hidden>
-                  <path d="M44 37c-10-1-15-8-12-16 2-7 10-10 17-6 2-9 13-13 21-7 6-7 19-4 20 5 9-2 17 4 16 12 8 4 5 13-3 15H48c-2 0-3-1-4-3Z" class="train-steam"/>
-                  <path d="M48 50h12V35h-8v8h-4z" class="train-dark"/>
-                  <path d="M42 54c0-5 4-9 9-9h72c8 0 14 6 14 14v23H42z" class="train-body"/>
-                  <path d="M87 49V37h34c7 0 12 5 12 12v5H87z" class="train-body"/>
-                  <path d="M97 43h20c4 0 7 3 7 7v4H97z" class="train-window"/>
-                  <path d="M27 81h112v10H22v-5c0-3 2-5 5-5Z" class="train-body"/>
-                  <path d="m22 82-13 5 13 4z" class="train-dark"/>
-                  <path d="M135 61h57c7 0 12 5 12 12v9h-69z" class="train-body"/>
-                  <path d="M131 56h68c5 0 9 4 9 8v3h-77z" class="train-roof"/>
-                  <path d="M145 69h16v13h-16zm27 0h17v13h-17z" class="train-window"/>
-                  <path d="M130 82h79v8h-79z" class="train-body"/>
-                  <path d="M62 88a15 15 0 1 0 30 0m17 0a12 12 0 1 0 24 0m17 2a12 12 0 1 0 24 0m7 0a12 12 0 1 0 24 0" class="train-wheel"/>
-                  <path d="M70 88a7 7 0 1 0 14 0m23 0a5 5 0 1 0 10 0m18 2a5 5 0 1 0 10 0m19 0a5 5 0 1 0 10 0m7 0a5 5 0 1 0 10 0" class="train-wheel-inner"/>
-                  <path d="M13 100h203" class="train-rail"/>
-                </svg>
                 <img class="bar-image" id="bar-image" alt="" hidden>
               </div>
             </div>
@@ -209,24 +170,38 @@
         <button type="button" class="close-button" id="close-image-picker" aria-label="Lukk bildevalg">×</button>
       </div>
       <p class="image-picker__intro">Velg et motiv til baksiden. Toppingene blir værende på forsiden.</p>
-      <article class="image-choice">
-        <img src="assets/togmotiv-valg.png" alt="Fargerik illustrasjon av et tog">
-        <div class="image-choice__details">
-          <div>
-            <h3>Togsjokolade</h3>
-            <p>Se toget som et motiv på baksiden av sjokoladeplaten.</p>
+      <div class="image-choice-grid">
+        <article class="image-choice">
+          <img src="assets/togmotiv-valg.png" alt="Fargerik illustrasjon av et tog">
+          <div class="image-choice__details">
+            <div>
+              <h3>Tog</h3>
+              <p>Motiv med tog på baksiden.</p>
+            </div>
+            <button type="button" class="order-button" id="choose-train-image">Velg tog</button>
           </div>
-          <button type="button" class="order-button" id="choose-train-image">Bruk dette toget</button>
-        </div>
-      </article>
-      <div class="image-picker__own">
-        <label class="upload-control" for="image-upload">
-          <span class="upload-icon" aria-hidden="true">＋</span>
-          <span><strong>Velg eget bilde</strong><small>JPG, PNG eller WebP fra enheten din</small></span>
-          <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
-        </label>
+        </article>
+        <article class="image-choice">
+          <img src="assets/blomstmotiv.png" alt="Illustrasjon av en rosa blomst">
+          <div class="image-choice__details">
+            <div>
+              <h3>Blomst</h3>
+              <p>Et lyst blomstermotiv på baksiden.</p>
+            </div>
+            <button type="button" class="order-button" id="choose-flower-image">Velg blomst</button>
+          </div>
+        </article>
+        <article class="image-choice">
+          <img src="assets/gratulerer-motiv.png" alt="Sjokoladeplate med tekst gratulerer med dagen">
+          <div class="image-choice__details">
+            <div>
+              <h3>Gratulerer</h3>
+              <p>En gratulasjon på sjokoladeplaten.</p>
+            </div>
+            <button type="button" class="order-button" id="choose-congratulations-image">Velg tekst</button>
+          </div>
+        </article>
       </div>
-      <p class="privacy-note">Bildet vises bare i denne prototypen og lastes ikke opp eller lagres.</p>
     </div>
   </dialog>
 

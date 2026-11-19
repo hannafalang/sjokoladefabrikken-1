@@ -36,7 +36,7 @@ const state = {
   imageUrl: null,
   ownsImageUrl: false,
   demoImage: false,
-  trainMotif: false,
+  demoImageName: "",
   previewBack: false,
 };
 
@@ -110,7 +110,7 @@ function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
-  const hasBackDesign = Boolean(state.imageUrl || state.trainMotif);
+  const hasBackDesign = Boolean(state.imageUrl);
   if (!hasBackDesign) state.previewBack = false;
   bar.style.setProperty("--bar-light", light);
   bar.style.setProperty("--bar-dark", dark);
@@ -121,7 +121,7 @@ function updatePreview() {
   $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
   $("#flip-hint").textContent = state.previewBack
-    ? `Bakside · ${state.imageUrl ? (state.demoImage ? "togbildet" : "bildet") : "togmotivet"}`
+    ? `Bakside · ${state.demoImageName || "bildet"}`
     : "Forside · toppingene";
   $("#flip-chocolate").hidden = !hasBackDesign;
   $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
@@ -141,7 +141,6 @@ function updatePreview() {
       return piece;
     }));
   $("#bar-toppings").replaceChildren(...pieces);
-  $("#bar-motif").toggleAttribute("hidden", !state.trainMotif || Boolean(state.imageUrl));
 
   const paidToppings = selected.filter((topping) => topping.paid).length;
   const imageFee = state.imageUrl ? 29 : 0;
@@ -152,15 +151,16 @@ function releaseUploadedImage() {
   if (state.ownsImageUrl && state.imageUrl) URL.revokeObjectURL(state.imageUrl);
 }
 
-function setSelectedImage(url, ownsObjectUrl = false, demoImage = false) {
+function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "") {
   releaseUploadedImage();
   state.imageUrl = url;
   state.ownsImageUrl = ownsObjectUrl;
-  state.demoImage = demoImage;
+  state.demoImage = Boolean(demoImageName);
+  state.demoImageName = demoImageName;
   state.previewBack = true;
   $("#bar-image").src = url;
-  $("#bar-image").alt = demoImage
-    ? "Eksempelbilde av sjokoladeplate med togmotiv"
+  $("#bar-image").alt = demoImageName
+    ? `Eksempelbilde av sjokoladeplate: ${demoImageName}`
     : "Valgt bilde på baksiden av sjokoladeplaten";
   $("#bar-image").hidden = false;
   $("#remove-image").hidden = false;
@@ -191,30 +191,6 @@ function drawRoundedRect(context, x, y, width, height, radius) {
   context.lineTo(x, y + radius);
   context.quadraticCurveTo(x, y, x + radius, y);
   context.closePath();
-}
-
-function drawTrainMotif(context, centerX, centerY) {
-  context.save();
-  context.translate(centerX - 175, centerY - 55);
-  context.fillStyle = "rgba(255, 226, 190, .88)";
-  context.strokeStyle = "rgba(72, 32, 19, .85)";
-  context.lineWidth = 8;
-  drawRoundedRect(context, 0, 30, 235, 82, 16);
-  context.fill();
-  context.stroke();
-  drawRoundedRect(context, 112, 7, 85, 55, 12);
-  context.fill();
-  context.stroke();
-  context.fillStyle = "#52291c";
-  context.fillRect(127, 19, 28, 25);
-  context.fillRect(163, 19, 23, 25);
-  context.fillStyle = "rgba(255, 226, 190, .88)";
-  context.beginPath();
-  context.arc(55, 112, 19, 0, Math.PI * 2);
-  context.arc(173, 112, 19, 0, Math.PI * 2);
-  context.fill();
-  context.stroke();
-  context.restore();
 }
 
 async function createDesignImage() {
@@ -300,9 +276,6 @@ async function createDesignImage() {
       });
     }
 
-    if (state.previewBack && state.trainMotif) {
-      drawTrainMotif(context, barX + barWidth / 2, barY + barHeight / 2);
-    }
   }
 
   context.strokeStyle = "rgba(76, 43, 32, .48)";
@@ -312,7 +285,7 @@ async function createDesignImage() {
 
   const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   const sideDescription = state.previewBack
-    ? state.imageUrl ? (state.demoImage ? "Bakside · togbilde" : "Bakside · bilde") : "Bakside · togmotiv"
+    ? state.imageUrl ? (state.demoImage ? "Bakside · togbilde" : "Bakside · bilde") : "Bakside"
     : selectedToppings.length ? selectedToppings.map((topping) => topping.name).join(" · ") : "Forside · uten topping";
   context.fillStyle = "#361c1b";
   context.font = "600 22px Arial, sans-serif";
@@ -343,7 +316,7 @@ function downloadDesignImage(file) {
 function getDesignDescription() {
   const chocolate = chocolates[state.chocolate].name;
   const selected = [...state.selectedToppings];
-  return `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}${state.trainMotif ? " og togmotiv" : ""}. Eksempelpris ${$("#preview-price").textContent}.`;
+  return `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}. Eksempelpris ${$("#preview-price").textContent}.`;
 }
 
 async function openShareDialog() {
@@ -486,18 +459,6 @@ $("#topping-search").addEventListener("input", (event) => {
   renderToppings();
 });
 
-$("#image-upload").addEventListener("change", (event) => {
-  const [file] = event.target.files;
-  if (!file) return;
-  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-    showToast("Velg et JPG-, PNG- eller WebP-bilde.");
-    event.target.value = "";
-    return;
-  }
-  setSelectedImage(URL.createObjectURL(file), true);
-  $("#image-picker-dialog").close();
-});
-
 $("#open-image-picker").addEventListener("click", () => {
   $("#image-picker-dialog").showModal();
 });
@@ -511,8 +472,17 @@ $("#image-picker-dialog").addEventListener("click", (event) => {
 });
 
 $("#choose-train-image").addEventListener("click", () => {
-  $("#image-upload").value = "";
-  setSelectedImage("./assets/sjokoladetog-demo.png", false, true);
+  setSelectedImage("./assets/sjokoladetog-demo.png", false, "togmotiv");
+  $("#image-picker-dialog").close();
+});
+
+$("#choose-flower-image").addEventListener("click", () => {
+  setSelectedImage("./assets/blomstmotiv.png", false, "blomstmotiv");
+  $("#image-picker-dialog").close();
+});
+
+$("#choose-congratulations-image").addEventListener("click", () => {
+  setSelectedImage("./assets/gratulerer-motiv.png", false, "gratulasjonsmotiv");
   $("#image-picker-dialog").close();
 });
 
@@ -521,20 +491,12 @@ $("#remove-image").addEventListener("click", () => {
   state.imageUrl = null;
   state.ownsImageUrl = false;
   state.demoImage = false;
-  state.previewBack = state.trainMotif;
+  state.demoImageName = "";
+  state.previewBack = false;
   $("#bar-image").removeAttribute("src");
   $("#bar-image").alt = "";
   $("#bar-image").hidden = true;
   $("#remove-image").hidden = true;
-  $("#image-upload").value = "";
-  updatePreview();
-});
-
-$("#train-motif").addEventListener("click", (event) => {
-  state.trainMotif = !state.trainMotif;
-  event.currentTarget.setAttribute("aria-pressed", String(state.trainMotif));
-  if (state.trainMotif) state.previewBack = true;
-  else if (!state.imageUrl) state.previewBack = false;
   updatePreview();
 });
 
@@ -579,8 +541,7 @@ $("#order-button").addEventListener("click", (event) => {
   const params = new URLSearchParams({
     chocolate: chocolates[state.chocolate].name,
     toppings: [...state.selectedToppings].join(", "),
-    motif: state.trainMotif ? "togmotiv" : "",
-    image: state.imageUrl ? (state.demoImage ? "togbilde" : "eget bilde") : "",
+    image: state.imageUrl ? (state.demoImageName || "eget bilde") : "",
     price: $("#preview-price").textContent,
   });
   window.location.href = `bestilling.html?${params}`;
