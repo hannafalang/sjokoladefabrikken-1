@@ -1,31 +1,61 @@
 const chocolates = {
-  milk: { name: "Melkesjokolade", colors: ["#a34c27", "#512417", "#843b20"] },
-  dark: { name: "Mørk sjokolade", colors: ["#71351f", "#2d1610", "#542614"] },
-  white: { name: "Hvit sjokolade", colors: ["#f3e7c9", "#d6bd92", "#ead8b4"] },
+  milk: { name: "Melkesjokolade", colors: ["#a9562c", "#732c0a", "#9f4d23"] },
+  dark: { name: "Mørk sjokolade", colors: ["#803f1d", "#542104", "#783716"] },
+  white: { name: "Hvit sjokolade", colors: ["#f8ebc3", "#b79865", "#fff5d0"] },
+  pink: { name: "Rosa sjokolade", colors: ["#f19cab", "#a23f4c", "#ffb0bd"] },
+};
+
+const chocolateMotifs = {
+  dark: {
+    flower: "./assets/dark-blomst.png",
+    train: "./assets/dark-tog.png",
+    congratulations: "./assets/dark-gratulerer.png",
+  },
+  milk: {
+    flower: "./assets/milk-blomst.png",
+    train: "./assets/milk-tog.png",
+    congratulations: "./assets/milk-gratulerer.png",
+  },
+  white: {
+    flower: "./assets/white-blomst.png",
+    train: "./assets/white-tog.png",
+    congratulations: "./assets/white-gratulerer.png",
+  },
+  pink: {
+    flower: "./assets/pink-blomst.png",
+    train: "./assets/pink-tog.png",
+    congratulations: "./assets/pink-gratulerer.png",
+  },
+};
+
+const motifNames = {
+  flower: "Blomsterrelieff",
+  train: "Sjokoladetog",
+  congratulations: "Gratulerer med dagen",
 };
 
 const toppings = [
-  { name: "Nonstop", category: "Søtt", note: "Eks.: Melk, soya", color: "#cb4b42", shape: "candy" },
-  { name: "Seigmenn", category: "Søtt", paid: true, color: "#e5aa54", shape: "gummy" },
-  { name: "Salt lakris", category: "Salt", note: "Eks.: Hvete", color: "#382828", shape: "licorice" },
-  { name: "Myk karamell", category: "Søtt", note: "Eks.: Melk", color: "#aa7047", shape: "caramel" },
-  { name: "Bringebærbiter", category: "Fruktig", paid: true, color: "#b7395f", shape: "raspberry" },
+  { name: "Nonstop", category: "Sjokolade", allergens: ["Melk", "Soya"], paid: true, color: "#cb4b42", shape: "candy" },
+  { name: "Seigmenn", category: "Søtt", allergens: [], paid: true, color: "#e5aa54", shape: "gummy" },
+  { name: "Salt lakris", category: "Salt", allergens: ["Hvete"], color: "#382828", shape: "licorice" },
+  { name: "Myk karamell", category: "Søtt", allergens: ["Melk"], paid: true, color: "#aa7047", shape: "caramel" },
+  { name: "Bringebærbiter", category: "Fruktig", allergens: [], paid: true, color: "#b7395f", shape: "raspberry" },
   { name: "Havsalt", category: "Salt", paid: true, color: "#f0e5c8", shape: "salt" },
-  { name: "Mini-marshmallows", category: "Søtt", paid: true, color: "#e9c2c8", shape: "marshmallow" },
-  { name: "Kjeksbiter", category: "Sprøtt", note: "Eks.: Hvete, melk", color: "#ad805c", shape: "cookie" },
-  { name: "Salte kringler", category: "Salt", note: "Eks.: Hvete", color: "#865537", shape: "pretzel" },
-  { name: "Surt eple", category: "Syrlig", paid: true, color: "#86a65c", shape: "apple" },
-  { name: "Sure jordbær", category: "Syrlig", paid: true, color: "#d85d69", shape: "strawberry" },
-  { name: "Sitronbiter", category: "Syrlig", paid: true, color: "#e8d75c", shape: "lemon" },
-  { name: "Jordbærbiter", category: "Fruktig", paid: true, color: "#ce6271", shape: "strawberry-piece" },
-  { name: "Appelsinskall", category: "Fruktig", paid: true, color: "#e78a3b", shape: "orange" },
-  { name: "Krokankrønsj", category: "Sprøtt", note: "Eks.: Mandler, melk", color: "#b1814e", shape: "brittle" },
-  { name: "Hasselnøtter", category: "Sprøtt", note: "Eks.: Hasselnøtter", color: "#95643d", shape: "hazelnut" },
-  { name: "Marsipanbiter", category: "Søtt", note: "Eks.: Mandler", color: "#d4ad83", shape: "marzipan" },
-  { name: "Vaniljefudge", category: "Søtt", note: "Eks.: Melk", color: "#e5cba1", shape: "fudge" },
-  { name: "Surt colagodteri", category: "Syrlig", paid: true, color: "#6e4850", shape: "cola" },
-  { name: "Chiliflak", category: "Sterkt", paid: true, color: "#ba3c30", shape: "chili" },
-  { name: "Salt karamell", category: "Salt", note: "Eks.: Melk", color: "#bd8151", shape: "salted-caramel" },
+  { name: "Mini-marshmallows", category: "Søtt", allergens: [], paid: true, color: "#e9c2c8", shape: "marshmallow" },
+  { name: "Kjeksbiter", category: "Sjokolade", allergens: ["Hvete", "Melk"], paid: true, color: "#ad805c", shape: "cookie" },
+  { name: "Salte kringler", category: "Salt", allergens: ["Hvete"], paid: true, color: "#865537", shape: "pretzel" },
+  { name: "Surt eple", category: "Syrlig", allergens: [], paid: true, color: "#86a65c", shape: "apple" },
+  { name: "Sure jordbær", category: "Syrlig", allergens: [], paid: true, color: "#d85d69", shape: "strawberry" },
+  { name: "Sitronbiter", category: "Syrlig", allergens: [], paid: true, color: "#e8d75c", shape: "lemon" },
+  { name: "Jordbærbiter", category: "Fruktig", allergens: [], paid: true, color: "#ce6271", shape: "strawberry-piece" },
+  { name: "Appelsinskall", category: "Fruktig", allergens: [], paid: true, color: "#e78a3b", shape: "orange" },
+  { name: "Krokankrønsj", category: "Sprøtt", allergens: ["Mandler", "Melk"], paid: true, color: "#b1814e", shape: "brittle" },
+  { name: "Hasselnøtter", category: "Nøtter", allergens: ["Hasselnøtter"], paid: true, color: "#95643d", shape: "hazelnut" },
+  { name: "Marsipanbiter", category: "Nøtter", allergens: ["Mandler"], paid: true, color: "#d4ad83", shape: "marzipan" },
+  { name: "Vaniljefudge", category: "Søtt", allergens: ["Melk"], paid: true, color: "#e5cba1", shape: "fudge" },
+  { name: "Surt colagodteri", category: "Syrlig", allergens: [], paid: true, color: "#6e4850", shape: "cola" },
+  { name: "Chiliflak", category: "Sterkt", allergens: [], paid: true, color: "#ba3c30", shape: "chili" },
+  { name: "Salt karamell", category: "Salt", allergens: ["Melk"], paid: true, color: "#bd8151", shape: "salted-caramel" },
 ];
 
 const state = {
@@ -33,7 +63,13 @@ const state = {
   selectedToppings: new Set(),
   filter: "Alle",
   query: "",
+  shape: "rektangel",
+  plateName: "",
+  occasion: "",
+  packaging: "standard",
   imageUrl: null,
+  imageMode: "",
+  selectedMotif: "",
   ownsImageUrl: false,
   demoImage: false,
   demoImageName: "",
@@ -106,25 +142,62 @@ function updateSelection() {
   $("#selection-count").textContent = `${selected.length} av 6 valgt${selected.length ? ` · ${selected.join(", ")}` : ""}`;
 }
 
+function getAllergens() {
+  const selected = toppings.filter((topping) => state.selectedToppings.has(topping.name));
+  const allergens = new Set(["Melk", "Soya"]);
+  selected.forEach((topping) => (topping.allergens || []).forEach((allergen) => allergens.add(allergen)));
+  return [...allergens].sort((a, b) => a.localeCompare(b, "nb"));
+}
+
+function updatePackagingPreview() {
+  const labels = {
+    standard: "Standardemballasje",
+    gave: "Gaveinnpakning",
+    premium: "Premium gaveeske",
+  };
+  const preview = $("#selected-packaging");
+  preview.dataset.packaging = state.packaging;
+  $("#selected-packaging-text").textContent = labels[state.packaging];
+  document.querySelectorAll(".packaging-option").forEach((option) => {
+    option.classList.toggle("selected", option.dataset.packaging === state.packaging);
+  });
+}
+
 function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
-  const hasBackDesign = Boolean(state.imageUrl);
-  if (!hasBackDesign) state.previewBack = false;
+  const hasDesign = Boolean(state.imageUrl);
+  const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
+  if (!hasDesign) state.previewBack = false;
+  bar.dataset.shape = state.shape;
+  bar.dataset.artwork = String(hasPlateArtwork);
   bar.style.setProperty("--bar-light", light);
   bar.style.setProperty("--bar-dark", dark);
   bar.style.setProperty("--piece-light", light);
   bar.style.setProperty("--piece-dark", piece);
   bar.classList.toggle("is-flipped", state.previewBack);
-  bar.setAttribute("aria-label", `${chocolate.name}plate, ${state.previewBack ? "bakside" : "forside"}`);
+  bar.setAttribute("aria-label", `${chocolate.name}plate i ${state.shape}form, ${state.previewBack ? "bakside" : "forside"}`);
   $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
   $("#flip-hint").textContent = state.previewBack
-    ? `Bakside · ${state.demoImageName || "bildet"}`
-    : "Forside · toppingene";
-  $("#flip-chocolate").hidden = !hasBackDesign;
+    ? `Bakside · ${state.demoImageName || "sjokoladeplaten"}`
+    : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
+  $("#flip-chocolate").hidden = !hasDesign;
   $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
+  $("#bar-artwork").hidden = !hasPlateArtwork;
+  if (hasPlateArtwork) {
+    $("#bar-artwork").src = state.imageUrl;
+    $("#bar-artwork").alt = `Forhåndsvisning av sjokoladeplate: ${state.demoImageName}`;
+  } else {
+    $("#bar-artwork").removeAttribute("src");
+    $("#bar-artwork").alt = "";
+  }
+  const backImage = state.imageMode === "back" ? state.imageUrl : null;
+  bar.dataset.backArtwork = String(Boolean(backImage));
+  $("#bar-image").hidden = !backImage;
+  $("#bar-image").src = backImage || "";
+  $("#bar-image").alt = backImage ? `${state.demoImageName} på baksiden av ${chocolate.name.toLocaleLowerCase("nb")}` : "";
   $("#preview-chocolate").textContent = chocolate.name;
 
   const selected = toppings.filter((topping) => state.selectedToppings.has(topping.name));
@@ -144,27 +217,41 @@ function updatePreview() {
 
   const paidToppings = selected.filter((topping) => topping.paid).length;
   const imageFee = state.imageUrl ? 29 : 0;
-  $("#preview-price").textContent = `${179 + paidToppings * 9 + imageFee} kr`;
+  const shapeFee = state.shape === "rektangel" ? 0 : 19;
+  const packagingFee = state.packaging === "gave" ? 39 : state.packaging === "premium" ? 79 : 0;
+  $("#preview-price").textContent = `${179 + paidToppings * 9 + imageFee + shapeFee + packagingFee} kr`;
+  $("#preview-allergens").textContent = `Allergener: ${getAllergens().join(", ")}`;
+  $("#preview-name").textContent = state.plateName ? `Navn: ${state.plateName}` : "";
+  $("#preview-name").hidden = !state.plateName;
+  updatePackagingPreview();
 }
 
 function releaseUploadedImage() {
   if (state.ownsImageUrl && state.imageUrl) URL.revokeObjectURL(state.imageUrl);
 }
 
-function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "") {
+function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageMode = "plate") {
   releaseUploadedImage();
   state.imageUrl = url;
+  state.imageMode = imageMode;
   state.ownsImageUrl = ownsObjectUrl;
   state.demoImage = Boolean(demoImageName);
   state.demoImageName = demoImageName;
-  state.previewBack = true;
-  $("#bar-image").src = url;
-  $("#bar-image").alt = demoImageName
-    ? `Eksempelbilde av sjokoladeplate: ${demoImageName}`
-    : "Valgt bilde på baksiden av sjokoladeplaten";
-  $("#bar-image").hidden = false;
+  state.previewBack = imageMode === "back";
+  if (imageMode === "plate" || imageMode === "back") {
+    state.shape = "rektangel";
+    $("#plate-shape").value = state.shape;
+  }
+  $("#bar-image").src = imageMode === "back" ? url : "";
+  $("#bar-image").alt = imageMode === "back" ? "Valgt bilde på baksiden av sjokoladeplaten" : "";
+  $("#bar-image").hidden = imageMode !== "back";
   $("#remove-image").hidden = false;
   updatePreview();
+}
+
+function selectChocolateMotif(motif) {
+  state.selectedMotif = motif;
+  setSelectedImage(chocolateMotifs[state.chocolate][motif], false, motifNames[motif], "back");
 }
 
 function showToast(message) {
@@ -193,6 +280,78 @@ function drawRoundedRect(context, x, y, width, height, radius) {
   context.closePath();
 }
 
+function drawChocolateShape(context, x, y, width, height, shape) {
+  if (shape === "rektangel") {
+    drawRoundedRect(context, x, y, width, height, 30);
+    return;
+  }
+
+  context.beginPath();
+  if (shape === "hjerte") {
+    context.moveTo(x + width * 0.5, y + height * 0.94);
+    context.bezierCurveTo(x + width * 0.39, y + height * 0.83, x + width * 0.05, y + height * 0.59, x + width * 0.04, y + height * 0.31);
+    context.bezierCurveTo(x + width * 0.03, y + height * 0.1, x + width * 0.22, y + height * 0.02, x + width * 0.38, y + height * 0.08);
+    context.bezierCurveTo(x + width * 0.44, y + height * 0.1, x + width * 0.48, y + height * 0.15, x + width * 0.5, y + height * 0.21);
+    context.bezierCurveTo(x + width * 0.55, y + height * 0.08, x + width * 0.7, y + height * 0.02, x + width * 0.84, y + height * 0.07);
+    context.bezierCurveTo(x + width, y + height * 0.13, x + width * 0.98, y + height * 0.35, x + width * 0.92, y + height * 0.5);
+    context.bezierCurveTo(x + width * 0.84, y + height * 0.69, x + width * 0.63, y + height * 0.86, x + width * 0.5, y + height * 0.94);
+  } else {
+    context.moveTo(x + width * 0.5, y + height * 0.96);
+    context.bezierCurveTo(x + width * 0.31, y + height * 0.96, x + width * 0.16, y + height * 0.82, x + width * 0.14, y + height * 0.64);
+    context.bezierCurveTo(x + width * 0.02, y + height * 0.57, x + width * 0.03, y + height * 0.4, x + width * 0.13, y + height * 0.34);
+    context.bezierCurveTo(x + width * 0.07, y + height * 0.22, x + width * 0.14, y + height * 0.07, x + width * 0.27, y + height * 0.07);
+    context.bezierCurveTo(x + width * 0.37, y + height * 0.07, x + width * 0.44, y + height * 0.14, x + width * 0.46, y + height * 0.24);
+    context.bezierCurveTo(x + width * 0.49, y + height * 0.22, x + width * 0.52, y + height * 0.22, x + width * 0.55, y + height * 0.24);
+    context.bezierCurveTo(x + width * 0.58, y + height * 0.14, x + width * 0.66, y + height * 0.07, x + width * 0.76, y + height * 0.07);
+    context.bezierCurveTo(x + width * 0.89, y + height * 0.07, x + width * 0.96, y + height * 0.22, x + width * 0.88, y + height * 0.34);
+    context.bezierCurveTo(x + width * 0.98, y + height * 0.4, x + width * 0.98, y + height * 0.57, x + width * 0.86, y + height * 0.64);
+    context.bezierCurveTo(x + width * 0.84, y + height * 0.82, x + width * 0.69, y + height * 0.96, x + width * 0.5, y + height * 0.96);
+  }
+  context.closePath();
+}
+
+function drawBearFace(context, x, y, width, height) {
+  const darkBrown = "#46291f";
+  context.fillStyle = "#8b4e27";
+  [0.245, 0.755].forEach((position) => {
+    context.beginPath();
+    context.arc(x + width * position, y + height * 0.225, width * 0.115, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = darkBrown;
+    context.beginPath();
+    context.arc(x + width * position, y + height * 0.225, width * 0.077, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#8b4e27";
+  });
+
+  context.fillStyle = "#090909";
+  [0.315, 0.685].forEach((position) => {
+    context.beginPath();
+    context.arc(x + width * position, y + height * 0.455, width * 0.045, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#fff";
+    context.beginPath();
+    context.arc(x + width * (position - 0.012), y + height * 0.44, width * 0.012, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#090909";
+  });
+
+  context.fillStyle = "#3a251d";
+  context.beginPath();
+  context.ellipse(x + width * 0.5, y + height * 0.55, width * 0.052, height * 0.047, 0, 0, Math.PI * 2);
+  context.fill();
+  context.beginPath();
+  context.moveTo(x + width * 0.5, y + height * 0.58);
+  context.lineTo(x + width * 0.5, y + height * 0.62);
+  context.moveTo(x + width * 0.5, y + height * 0.62);
+  context.bezierCurveTo(x + width * 0.47, y + height * 0.67, x + width * 0.435, y + height * 0.67, x + width * 0.415, y + height * 0.64);
+  context.moveTo(x + width * 0.5, y + height * 0.62);
+  context.bezierCurveTo(x + width * 0.53, y + height * 0.67, x + width * 0.565, y + height * 0.67, x + width * 0.585, y + height * 0.64);
+  context.lineWidth = Math.max(4, width * 0.009);
+  context.lineCap = "round";
+  context.stroke();
+}
+
 async function createDesignImage() {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
@@ -207,14 +366,21 @@ async function createDesignImage() {
   context.fillText("Min sjokoladeplate", 80, 90);
   context.fillStyle = "#6e5d58";
   context.font = "24px Arial, sans-serif";
-  context.fillText(chocolates[state.chocolate].name, 82, 132);
+  context.fillText(`${chocolates[state.chocolate].name}${state.plateName ? ` · ${state.plateName}` : ""}`, 82, 132);
 
-  const barX = 105;
-  const barY = 190;
-  const barWidth = 990;
-  const barHeight = 470;
+  const organicShape = state.shape !== "rektangel";
+  const barWidth = organicShape ? 570 : 990;
+  const barHeight = organicShape ? 560 : 470;
+  const barX = (canvas.width - barWidth) / 2;
+  const barY = organicShape ? 155 : 190;
+  if (state.imageMode === "plate" && state.imageUrl && !state.previewBack) {
+    const image = new Image();
+    image.src = state.imageUrl;
+    await image.decode();
+    context.drawImage(image, barX, barY, barWidth, barHeight);
+  } else {
   const [light, dark, piece] = chocolates[state.chocolate].colors;
-  drawRoundedRect(context, barX, barY, barWidth, barHeight, 30);
+  drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   const barGradient = context.createLinearGradient(barX, barY, barX + barWidth, barY + barHeight);
   barGradient.addColorStop(0, light);
   barGradient.addColorStop(1, dark);
@@ -224,15 +390,14 @@ async function createDesignImage() {
   context.lineWidth = 7;
   context.stroke();
 
-  if (state.previewBack && state.imageUrl) {
+  context.save();
+  drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
+  context.clip();
+  if (state.previewBack && state.imageUrl && state.imageMode === "back") {
     const image = new Image();
     image.src = state.imageUrl;
     await image.decode();
-    context.save();
-    drawRoundedRect(context, barX, barY, barWidth, barHeight, 30);
-    context.clip();
     context.drawImage(image, barX, barY, barWidth, barHeight);
-    context.restore();
   } else {
     const padding = 22;
     const gap = 10;
@@ -276,20 +441,32 @@ async function createDesignImage() {
       });
     }
 
+    if (state.shape === "bamse") {
+      drawBearFace(context, barX, barY, barWidth, barHeight);
+    }
+
   }
+  context.restore();
 
   context.strokeStyle = "rgba(76, 43, 32, .48)";
   context.lineWidth = 7;
-  drawRoundedRect(context, barX, barY, barWidth, barHeight, 30);
+  drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.stroke();
+  }
 
   const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   const sideDescription = state.previewBack
-    ? state.imageUrl ? (state.demoImage ? "Bakside · togbilde" : "Bakside · bilde") : "Bakside"
-    : selectedToppings.length ? selectedToppings.map((topping) => topping.name).join(" · ") : "Forside · uten topping";
+    ? state.imageUrl ? `Bakside · ${state.demoImageName || "bilde"}` : "Bakside"
+    : state.imageMode === "plate" ? `Forside · ${state.demoImageName}`
+      : selectedToppings.length ? selectedToppings.map((topping) => topping.name).join(" · ") : "Forside · uten topping";
+  const packagingLabels = {
+    standard: "Standardemballasje",
+    gave: "Gaveinnpakning",
+    premium: "Premium gaveeske",
+  };
   context.fillStyle = "#361c1b";
   context.font = "600 22px Arial, sans-serif";
-  context.fillText(sideDescription, 82, 715, 1035);
+  context.fillText(`${sideDescription} · ${packagingLabels[state.packaging]} · ${getAllergens().join(", ")}`, 82, 715, 1035);
   context.font = "700 25px Arial, sans-serif";
   context.textAlign = "right";
   context.fillText(`Eksempelpris ${$("#preview-price").textContent}`, 1118, 765);
@@ -316,7 +493,8 @@ function downloadDesignImage(file) {
 function getDesignDescription() {
   const chocolate = chocolates[state.chocolate].name;
   const selected = [...state.selectedToppings];
-  return `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}. Eksempelpris ${$("#preview-price").textContent}.`;
+  const name = state.plateName ? ` Navn: ${state.plateName}.` : "";
+  return `Min sjokoladeplate: ${chocolate}${selected.length ? ` med ${selected.join(", ")}` : ""}.${name} Eksempelpris ${$("#preview-price").textContent}.`;
 }
 
 async function openShareDialog() {
@@ -433,11 +611,37 @@ function suggestCombination(prompt) {
 document.querySelectorAll("[data-chocolate]").forEach((button) => {
   button.addEventListener("click", () => {
     state.chocolate = button.dataset.chocolate;
+    if (state.selectedMotif) {
+      state.imageUrl = chocolateMotifs[state.chocolate][state.selectedMotif];
+      state.demoImageName = motifNames[state.selectedMotif];
+    }
     document.querySelectorAll("[data-chocolate]").forEach((option) => {
       const selected = option === button;
       option.classList.toggle("selected", selected);
       option.setAttribute("aria-pressed", String(selected));
     });
+    updatePreview();
+  });
+});
+
+$("#plate-name").addEventListener("input", (event) => {
+  state.plateName = event.target.value.trim();
+  updatePreview();
+});
+
+$("#plate-occasion").addEventListener("change", (event) => {
+  state.occasion = event.target.value;
+});
+
+$("#plate-shape").addEventListener("change", (event) => {
+  state.shape = event.target.value;
+  $("#chocolate-bar").dataset.shape = state.shape;
+  updatePreview();
+});
+
+document.querySelectorAll('input[name="packaging"]').forEach((input) => {
+  input.addEventListener("change", (event) => {
+    state.packaging = event.target.value;
     updatePreview();
   });
 });
@@ -472,23 +676,25 @@ $("#image-picker-dialog").addEventListener("click", (event) => {
 });
 
 $("#choose-train-image").addEventListener("click", () => {
-  setSelectedImage("./assets/sjokoladetog-demo.png", false, "togmotiv");
+  selectChocolateMotif("train");
   $("#image-picker-dialog").close();
 });
 
 $("#choose-flower-image").addEventListener("click", () => {
-  setSelectedImage("./assets/blomstmotiv.png", false, "blomstmotiv");
+  selectChocolateMotif("flower");
   $("#image-picker-dialog").close();
 });
 
 $("#choose-congratulations-image").addEventListener("click", () => {
-  setSelectedImage("./assets/gratulerer-motiv.png", false, "gratulasjonsmotiv");
+  selectChocolateMotif("congratulations");
   $("#image-picker-dialog").close();
 });
 
 $("#remove-image").addEventListener("click", () => {
   releaseUploadedImage();
   state.imageUrl = null;
+  state.imageMode = "";
+  state.selectedMotif = "";
   state.ownsImageUrl = false;
   state.demoImage = false;
   state.demoImageName = "";
@@ -542,7 +748,13 @@ $("#order-button").addEventListener("click", (event) => {
     chocolate: chocolates[state.chocolate].name,
     toppings: [...state.selectedToppings].join(", "),
     image: state.imageUrl ? (state.demoImageName || "eget bilde") : "",
+    imagePosition: state.imageMode === "plate" ? "på forsiden" : "på baksiden",
     price: $("#preview-price").textContent,
+    shape: state.shape,
+    name: state.plateName,
+    occasion: state.occasion,
+    packaging: state.packaging,
+    allergens: getAllergens().join(", "),
   });
   window.location.href = `bestilling.html?${params}`;
 });
