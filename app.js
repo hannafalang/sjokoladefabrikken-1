@@ -215,7 +215,11 @@ function updatePreview() {
   const backImage = state.imageMode === "back" ? state.imageUrl : null;
   bar.dataset.backArtwork = String(Boolean(backImage));
   $("#bar-image").hidden = !backImage;
-  $("#bar-image").src = backImage || "";
+  if (backImage) {
+    if ($("#bar-image").src !== backImage) $("#bar-image").src = backImage;
+  } else if (state.imageMode !== "plate") {
+    $("#bar-image").removeAttribute("src");
+  }
   $("#bar-image").alt = backImage ? `${state.demoImageName} på baksiden av ${chocolate.name.toLocaleLowerCase("nb")}` : "";
   $("#preview-chocolate").textContent = chocolate.name;
 
@@ -966,6 +970,7 @@ function handleImageFile(file) {
   }
   state.decoration = "image";
   state.text = "";
+  state.demoImageName = file.name;
   $("#decoration-text").value = "";
   void prepareImage(file);
   document.querySelectorAll("[data-decoration]").forEach((option) => {
