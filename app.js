@@ -67,13 +67,23 @@ const state = {
   plateName: "",
   occasion: "",
   packaging: "standard",
+  allergenFilter: { excluded: [], severe: false },
   imageUrl: null,
   imageMode: "",
+  imageProcessing: false,
+  sourceFile: null,
+  imageJob: 0,
+  focusX: 0.5,
+  focusY: 0.5,
+  backgroundSoftness: 0.8,
   selectedMotif: "",
   ownsImageUrl: false,
   demoImage: false,
   demoImageName: "",
-  previewBack: false,
+  previewBack: true,
+  decoration: "none",
+  text: "",
+  font: "classic",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -81,6 +91,16 @@ const toppingGrid = $("#topping-options");
 let toastTimeout;
 let shareImageUrl;
 let shareImageFile;
+
+const allergenOptions = [
+  { id: "gluten", name: "Glutenholdige kornslag", matches: ["Hvete", "Gluten"] },
+  { id: "milk", name: "Melk", matches: ["Melk"] },
+  { id: "eggs", name: "Egg", matches: ["Egg"] },
+  { id: "soy", name: "Soya", matches: ["Soya"] },
+  { id: "peanuts", name: "Peanøtter", matches: ["Peanøtter"] },
+  { id: "tree-nuts", name: "Nøtter", matches: ["Nøtter", "Mandler", "Hasselnøtter"] },
+  { id: "sesame", name: "Sesam", matches: ["Sesam"] },
+];
 
 function createToppingShape(topping, preview = false) {
   const shape = document.createElement("span");
@@ -107,7 +127,7 @@ function renderToppings() {
     button.type = "button";
     button.className = `topping-option${selected ? " selected" : ""}`;
     button.setAttribute("aria-pressed", String(selected));
-    button.disabled = !selected && state.selectedToppings.size >= 6;
+    button.disabled = (!selected && state.selectedToppings.size >= 6) || !toppingAllowedByFilter(topping);
 
     const name = document.createElement("span");
     name.className = "topping-name";
@@ -129,6 +149,7 @@ function toggleTopping(name) {
     state.selectedToppings.delete(name);
   } else if (state.selectedToppings.size < 6) {
     state.selectedToppings.add(name);
+    state.previewBack = true;
   } else {
     showToast("Du kan velge opptil 6 typer smågodt.");
     return;
@@ -149,6 +170,44 @@ function getAllergens() {
   return [...allergens].sort((a, b) => a.localeCompare(b, "nb"));
 }
 
+function toppingAllowedByFilter(topping) {
+  if (state.allergenFilter.severe) return false;
+  if (!state.allergenFilter.excluded.length) return true;
+  return !state.allergenFilter.excluded.some((allergenId) => {
+    const allergen = allergenOptions.find((option) => option.id === allergenId);
+    return allergen?.matches.some((name) => (topping.allergens || []).includes(name));
+  });
+}
+
+function renderAllergenOptions() {
+  $("#allergen-options").replaceChildren(...allergenOptions.map((allergen) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = allergen.id;
+    input.checked = state.allergenFilter.excluded.includes(allergen.id);
+    input.addEventListener("change", readAllergenFilter);
+    const text = document.createElement("span");
+    text.textContent = allergen.name;
+    label.append(input, text);
+    return label;
+  }));
+  $("#severe-allergy").checked = state.allergenFilter.severe;
+  $("#allergen-filter-status").textContent = state.allergenFilter.excluded.length || state.allergenFilter.severe
+    ? "Filter aktivt. Allergerisk kontroll må fortsatt avklares med leverandøren."
+    : "Ingen allergener er valgt.";
+}
+
+function readAllergenFilter() {
+  state.allergenFilter = {
+    excluded: [...document.querySelectorAll("#allergen-options input:checked")].map((input) => input.value),
+    severe: $("#severe-allergy").checked,
+  };
+  renderAllergenOptions();
+  renderToppings();
+  updatePreview();
+}
+
 function updatePackagingPreview() {
   const labels = {
     standard: "Standardemballasje",
@@ -167,11 +226,12 @@ function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
-  const hasDesign = Boolean(state.imageUrl);
+  const hasDesign = Boolean(state.imageUrl) || (state.decoration === "text" && state.text.trim());
+  const hasToppings = state.selectedToppings.size > 0;
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
-  if (!hasDesign) state.previewBack = false;
   bar.dataset.shape = state.shape;
   bar.dataset.artwork = String(hasPlateArtwork);
+  bar.dataset.imageRelief = String(hasPlateArtwork && !state.previewBack);
   bar.style.setProperty("--bar-light", light);
   bar.style.setProperty("--bar-dark", dark);
   bar.style.setProperty("--piece-light", light);
@@ -181,22 +241,34 @@ function updatePreview() {
   $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
   $("#flip-hint").textContent = state.previewBack
-    ? `Bakside · ${state.demoImageName || "sjokoladeplaten"}`
-    : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
-  $("#flip-chocolate").hidden = !hasDesign;
+    ? "Bakside · toppingene"
+    : state.decoration === "text" && state.text.trim()
+      ? "Forside · din tekst"
+      : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
+  $("#flip-chocolate").hidden = !(hasDesign || hasToppings);
   $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
   $("#bar-artwork").hidden = !hasPlateArtwork;
   if (hasPlateArtwork) {
-    $("#bar-artwork").src = state.imageUrl;
+    if (typeof $("#bar-artwork").removeAttribute === "function") $("#bar-artwork").removeAttribute("src");
     $("#bar-artwork").alt = `Forhåndsvisning av sjokoladeplate: ${state.demoImageName}`;
   } else {
-    $("#bar-artwork").removeAttribute("src");
+    if (typeof $("#bar-artwork").removeAttribute === "function") $("#bar-artwork").removeAttribute("src");
     $("#bar-artwork").alt = "";
   }
+  const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
+  bar.dataset.textDecoration = String(showGreeting);
+  const barName = $("#bar-name");
+  const showBarName = Boolean(state.plateName) && !state.previewBack && !showGreeting && !hasPlateArtwork;
+  barName.hidden = !showBarName;
+  barName.textContent = state.plateName;
   const backImage = state.imageMode === "back" ? state.imageUrl : null;
   bar.dataset.backArtwork = String(Boolean(backImage));
   $("#bar-image").hidden = !backImage;
-  $("#bar-image").src = backImage || "";
+  if (backImage) {
+    if ($("#bar-image").src !== backImage) $("#bar-image").src = backImage;
+  } else if (state.imageMode !== "plate") {
+    if (typeof $("#bar-image").removeAttribute === "function") $("#bar-image").removeAttribute("src");
+  }
   $("#bar-image").alt = backImage ? `${state.demoImageName} på baksiden av ${chocolate.name.toLocaleLowerCase("nb")}` : "";
   $("#preview-chocolate").textContent = chocolate.name;
 
@@ -214,6 +286,7 @@ function updatePreview() {
       return piece;
     }));
   $("#bar-toppings").replaceChildren(...pieces);
+  renderRelief();
 
   const paidToppings = selected.filter((topping) => topping.paid).length;
   const imageFee = state.imageUrl ? 29 : 0;
@@ -221,13 +294,209 @@ function updatePreview() {
   const packagingFee = state.packaging === "gave" ? 39 : state.packaging === "premium" ? 79 : 0;
   $("#preview-price").textContent = `${179 + paidToppings * 9 + imageFee + shapeFee + packagingFee} kr`;
   $("#preview-allergens").textContent = `Allergener: ${getAllergens().join(", ")}`;
-  $("#preview-name").textContent = state.plateName ? `Navn: ${state.plateName}` : "";
-  $("#preview-name").hidden = !state.plateName;
   updatePackagingPreview();
 }
 
 function releaseUploadedImage() {
   if (state.ownsImageUrl && state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+}
+
+function buildTextRelief(pixels, w, h) {
+  const height=3.5*1.94/160;
+  const tones=new Float32Array(w*h);
+  const mask=new Float32Array(w*h);
+  const distance=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) {
+    mask[i]=pixels[i*4+3]/255;
+    distance[i]=mask[i]>0.05 ? w+h : 0;
+    tones[i]=1;
+  }
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) {
+    const i=y*w+x;
+    if(x>0) distance[i]=Math.min(distance[i],distance[i-1]+1);
+    if(y>0) distance[i]=Math.min(distance[i],distance[i-w]+1);
+  }
+  for(let y=h-1;y>=0;y--) for(let x=w-1;x>=0;x--) {
+    const i=y*w+x;
+    if(x<w-1) distance[i]=Math.min(distance[i],distance[i+1]+1);
+    if(y<h-1) distance[i]=Math.min(distance[i],distance[i+w]+1);
+  }
+  const heights=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) {
+    const edge=Math.min(1,distance[i]/2);
+    const bevel=edge*edge*(3-2*edge);
+    heights[i]=height*mask[i]*bevel;
+  }
+  return {heights,tones};
+}
+
+function buildImageRelief(pixels, w, h, settings) {
+  const tones=new Float32Array(w*h);
+  const alpha=new Float32Array(w*h);
+  const histogram=new Uint32Array(256);
+  for(let i=0;i<w*h;i++) {
+    alpha[i]=pixels[i*4+3]/255;
+    tones[i]=(pixels[i*4]*0.2126+pixels[i*4+1]*0.7152+pixels[i*4+2]*0.0722)/255;
+    if(alpha[i]>0.5) histogram[Math.round(tones[i]*255)]++;
+  }
+  const count=histogram.reduce((a,b)=>a+b,0);
+  const percentile=(fraction)=>{
+    let sum=0;
+    for(let i=0;i<256;i++) {
+      sum+=histogram[i];
+      if(sum>count*fraction) return i/255;
+    }
+    return 1;
+  };
+  const low=percentile(0.02), range=Math.max(0.15,percentile(0.98)-low);
+  let softened=tones.slice();
+  {
+    const stride=w+1;
+    const sums=new Float64Array((w+1)*(h+1));
+    const weights=new Float64Array(sums.length);
+    for(let y=0;y<h;y++) {
+      let rowSum=0,rowWeight=0;
+      for(let x=0;x<w;x++) {
+        const i=y*w+x,p=(y+1)*stride+x+1;
+        rowSum+=tones[i]*alpha[i];rowWeight+=alpha[i];
+        sums[p]=sums[p-stride]+rowSum;
+        weights[p]=weights[p-stride]+rowWeight;
+      }
+    }
+    const average=(x,y,radius)=>{
+      const x0=Math.max(0,x-radius),x1=Math.min(w,x+radius+1);
+      const y0=Math.max(0,y-radius),y1=Math.min(h,y+radius+1);
+      const a=y0*stride+x0,b=y0*stride+x1,c=y1*stride+x0,d=y1*stride+x1;
+      const weight=weights[d]-weights[b]-weights[c]+weights[a];
+      return weight>0?(sums[d]-sums[b]-sums[c]+sums[a])/weight:0;
+    };
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++) {
+      const dx=(x/w-settings.focusX)/0.3,dy=(y/h-settings.focusY)/0.4;
+      const focus=Math.exp(-(dx*dx+dy*dy)*1.5);
+      const blend=settings.backgroundSoftness*(1-focus);
+      softened[y*w+x]=average(x,y,1)*(1-blend)+average(x,y,8)*blend;
+    }
+  }
+  const distance=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) distance[i]=alpha[i]>0.12?w+h:0;
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) {
+    const i=y*w+x;
+    if(x>0) distance[i]=Math.min(distance[i],distance[i-1]+1);
+    if(y>0) distance[i]=Math.min(distance[i],distance[i-w]+1);
+  }
+  for(let y=h-1;y>=0;y--) for(let x=w-1;x>=0;x--) {
+    const i=y*w+x;
+    if(x<w-1) distance[i]=Math.min(distance[i],distance[i+1]+1);
+    if(y<h-1) distance[i]=Math.min(distance[i],distance[i+w]+1);
+  }
+  const mmToPreview=1.94/160;
+  const ramp=(value,start,end)=>{
+    const t=Math.max(0,Math.min(1,(value-start)/(end-start)));
+    return t*t*(3-2*t);
+  };
+  const blendWidthPx=Math.max(8,Math.min(w,h)*0.10);
+  let heights=new Float32Array(w*h);
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) {
+    const i=y*w+x;
+    const tone=Math.max(0,Math.min(1,(softened[i]-low)/range));
+    tones[i]=tone;
+    const toBoundary=Math.min(x,y,w-1-x,h-1-y);
+    const edge=Math.min(1,Math.min(distance[i],toBoundary)/blendWidthPx);
+    const roundedEdge=edge*edge*edge*(edge*(edge*6-15)+10);
+    const buildup=(ramp(tone,0.02,0.42)+ramp(tone,0.28,0.72)+ramp(tone,0.58,0.98))/3;
+    heights[i]=alpha[i]>0.12?alpha[i]*roundedEdge*(0.5+buildup*9)*mmToPreview:0;
+  }
+  const horizontal=new Float32Array(w*h);
+  const rounded=new Float32Array(w*h);
+  const kernel=[0,1,6,1,0];
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) {
+    let sum=0;
+    for(let k=-2;k<=2;k++) sum+=heights[y*w+Math.max(0,Math.min(w-1,x+k))]*kernel[k+2];
+    horizontal[y*w+x]=sum/8;
+  }
+  for(let y=0;y<h;y++) for(let x=0;x<w;x++) {
+    let sum=0;
+    for(let k=-2;k<=2;k++) sum+=horizontal[Math.max(0,Math.min(h-1,y+k))*w+x]*kernel[k+2];
+    rounded[y*w+x]=(x===0||y===0||x===w-1||y===h-1)?0:sum/8;
+  }
+  return {heights:rounded,tones};
+}
+
+function renderRelief() {
+  const canvas=$("#bar-relief");
+  const image=$("#bar-image");
+  const isText=state.decoration==="text"&&state.text.trim();
+  const isImage=state.decoration==="image"&&state.imageUrl&&!state.imageProcessing&&image.complete&&image.naturalWidth;
+  canvas.hidden=state.previewBack||(!isText&&!isImage);
+  if(canvas.hidden)return;
+  const gl=canvas.getContext("webgl",{alpha:true,antialias:true});
+  if(!gl){canvas.hidden=true;showToast("Nettleseren må støtte WebGL for å vise sjokoladerelieffet.");return;}
+  if(!canvas.reliefProgram){
+    const compile=(type,source)=>{
+      const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);
+      if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(shader));
+      return shader;
+    };
+    const program=gl.createProgram();
+    const shaders=[
+      compile(gl.VERTEX_SHADER,`attribute vec3 position;attribute vec3 normal;attribute vec2 detail;varying vec3 n;varying vec2 surface;void main(){n=normal;surface=detail;gl_Position=vec4(position.x+position.z*.10,position.y+position.z*.55,-position.z,1.0);}`),
+      compile(gl.FRAGMENT_SHADER,`precision highp float;varying vec3 n;varying vec2 surface;uniform vec3 chocolate;void main(){vec3 N=normalize(n);vec3 L=normalize(vec3(-.55,.8,1.4));float diffuse=max(dot(N,L),0.0);float sheen=pow(max(dot(N,normalize(L+vec3(0.0,0.0,1.0))),0.0),24.0);float crest=1.0+clamp(surface.y,0.0,.12);float grain=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453);vec3 material=chocolate*(.40+.60*diffuse)*crest*(.994+grain*.012);gl_FragColor=vec4(material+vec3(.085,.071,.055)*sheen,1.0);}`)
+    ];
+    shaders.forEach(shader=>gl.attachShader(program,shader));
+    gl.linkProgram(program);
+    if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));
+    shaders.forEach(shader=>gl.deleteShader(shader));
+    canvas.reliefProgram=program;
+    canvas.reliefBuffer=gl.createBuffer();
+  }
+  const reliefKey=isText?`text:${state.font}:${state.text}`:`${state.imageUrl}:${state.focusX}:${state.focusY}:${state.backgroundSoftness}`;
+  if(canvas.reliefKey!==reliefKey){
+    const w=640,h=360,source=document.createElement("canvas");
+    source.width=w;source.height=h;
+    const ctx=source.getContext("2d",{willReadFrequently:true});
+    let imageWidth=w-8,imageHeight=h-8;
+    if(isImage){
+      const scale=Math.min(imageWidth/image.naturalWidth,imageHeight/image.naturalHeight);
+      imageWidth=image.naturalWidth*scale;imageHeight=image.naturalHeight*scale;
+      ctx.drawImage(image,(w-imageWidth)/2,(h-imageHeight)/2,imageWidth,imageHeight);
+    }else{
+      const family=state.font==="handwriting"?"cursive":state.font==="modern"?"sans-serif":"serif";
+      ctx.fillStyle="white";ctx.textAlign="center";ctx.textBaseline="middle";
+      let size=100;
+      do{ctx.font=`bold ${size--}px ${family}`}while(ctx.measureText(state.text).width>w-18&&size>5);
+      ctx.fillText(state.text,w/2,h/2);
+    }
+    const pixels=ctx.getImageData(0,0,w,h).data;
+    const {heights,tones}=isText?buildTextRelief(pixels,w,h):buildImageRelief(pixels,w,h,state);
+    const vertices=new Float32Array((w-1)*(h-1)*6*8);
+    let vertexOffset=0;
+    const emit=(x,y)=>{
+      const z=heights[y*w+x];
+      const dx=(heights[y*w+Math.min(w-1,x+2)]-heights[y*w+Math.max(0,x-2)])*w/8;
+      const dy=(heights[Math.min(h-1,y+2)*w+x]-heights[Math.max(0,y-2)*w+x])*h/8;
+      const neighbor=(heights[y*w+Math.max(0,x-2)]+heights[y*w+Math.min(w-1,x+2)]+heights[Math.max(0,y-2)*w+x]+heights[Math.min(h-1,y+2)*w+x])/4;
+      const cavity=(z-neighbor)*24;
+      vertices.set([x/(w-1)*1.94-.97,.94-y/(h-1)*1.88,z,-dx,dy,1,tones[y*w+x],cavity],vertexOffset);vertexOffset+=8;
+    };
+    for(let y=0;y<h-1;y++)for(let x=0;x<w-1;x++){
+      if(!heights[y*w+x]&&!heights[y*w+x+1]&&!heights[(y+1)*w+x]&&!heights[(y+1)*w+x+1])continue;
+      emit(x,y);emit(x+1,y);emit(x,y+1);emit(x+1,y);emit(x+1,y+1);emit(x,y+1);
+    }
+    gl.bindBuffer(gl.ARRAY_BUFFER,canvas.reliefBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,vertices.subarray(0,vertexOffset),gl.STATIC_DRAW);
+    canvas.reliefVertexCount=vertexOffset/8;canvas.reliefKey=reliefKey;
+  }
+  gl.viewport(0,0,canvas.width,canvas.height);
+  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.enable(gl.DEPTH_TEST);gl.useProgram(canvas.reliefProgram);
+  gl.bindBuffer(gl.ARRAY_BUFFER,canvas.reliefBuffer);
+  for(const [name,offset] of [["position",0],["normal",12],["detail",24]]){
+    const location=gl.getAttribLocation(canvas.reliefProgram,name);
+    gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,name==="detail"?2:3,gl.FLOAT,false,32,offset);
+  }
+  const color=chocolates[state.chocolate].colors[0];
+  gl.uniform3f(gl.getUniformLocation(canvas.reliefProgram,"chocolate"),...[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255));
+  gl.drawArrays(gl.TRIANGLES,0,canvas.reliefVertexCount);
 }
 
 function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageMode = "plate") {
@@ -240,9 +509,9 @@ function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageM
   state.previewBack = imageMode === "back";
   if (imageMode === "plate" || imageMode === "back") {
     state.shape = "rektangel";
-    $("#plate-shape").value = state.shape;
+    if ($("#plate-shape")) $("#plate-shape").value = state.shape;
   }
-  $("#bar-image").src = imageMode === "back" ? url : "";
+  $("#bar-image").src = url;
   $("#bar-image").alt = imageMode === "back" ? "Valgt bilde på baksiden av sjokoladeplaten" : "";
   $("#bar-image").hidden = imageMode !== "back";
   $("#remove-image").hidden = false;
@@ -251,7 +520,7 @@ function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageM
 
 function selectChocolateMotif(motif) {
   state.selectedMotif = motif;
-  setSelectedImage(chocolateMotifs[state.chocolate][motif], false, motifNames[motif], "back");
+  setSelectedImage(chocolateMotifs[state.chocolate][motif], false, motifNames[motif], "plate");
 }
 
 function showToast(message) {
@@ -366,7 +635,6 @@ async function createDesignImage() {
   context.fillText("Min sjokoladeplate", 80, 90);
   context.fillStyle = "#6e5d58";
   context.font = "24px Arial, sans-serif";
-  context.fillText(`${chocolates[state.chocolate].name}${state.plateName ? ` · ${state.plateName}` : ""}`, 82, 132);
 
   const organicShape = state.shape !== "rektangel";
   const barWidth = organicShape ? 570 : 990;
@@ -399,27 +667,7 @@ async function createDesignImage() {
     await image.decode();
     context.drawImage(image, barX, barY, barWidth, barHeight);
   } else {
-    const padding = 22;
-    const gap = 10;
-    const cellWidth = (barWidth - padding * 2 - gap * 5) / 6;
-    const cellHeight = (barHeight - padding * 2 - gap * 3) / 4;
-    for (let row = 0; row < 4; row += 1) {
-      for (let column = 0; column < 6; column += 1) {
-        const x = barX + padding + column * (cellWidth + gap);
-        const y = barY + padding + row * (cellHeight + gap);
-        drawRoundedRect(context, x, y, cellWidth, cellHeight, 13);
-        const cellGradient = context.createLinearGradient(x, y, x + cellWidth, y + cellHeight);
-        cellGradient.addColorStop(0, light);
-        cellGradient.addColorStop(1, piece);
-        context.fillStyle = cellGradient;
-        context.fill();
-        context.strokeStyle = "rgba(64, 35, 27, .3)";
-        context.lineWidth = 2;
-        context.stroke();
-      }
-    }
-
-    if (!state.previewBack) {
+    if (!state.previewBack && state.imageMode !== "plate") {
       const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
       selectedToppings.forEach((topping, toppingIndex) => {
         for (let index = 0; index < 4; index += 1) {
@@ -629,22 +877,51 @@ $("#plate-name").addEventListener("input", (event) => {
   updatePreview();
 });
 
-$("#plate-occasion").addEventListener("change", (event) => {
-  state.occasion = event.target.value;
-});
-
-$("#plate-shape").addEventListener("change", (event) => {
-  state.shape = event.target.value;
-  $("#chocolate-bar").dataset.shape = state.shape;
-  updatePreview();
-});
-
 document.querySelectorAll('input[name="packaging"]').forEach((input) => {
   input.addEventListener("change", (event) => {
     state.packaging = event.target.value;
     updatePreview();
   });
 });
+
+document.querySelectorAll("[data-decoration]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.decoration = button.dataset.decoration;
+    state.previewBack = false;
+    if (state.decoration !== "image") {
+      releaseUploadedImage();
+      state.imageUrl = null;
+      state.imageMode = "";
+      state.selectedMotif = "";
+      state.ownsImageUrl = false;
+      state.demoImage = false;
+      state.demoImageName = "";
+    }
+    if (state.decoration !== "text") {
+      state.text = "";
+      $("#decoration-text").value = "";
+    }
+    document.querySelectorAll("[data-decoration]").forEach((option) => {
+      const selected = option === button;
+      option.classList.toggle("selected", selected);
+      option.setAttribute("aria-pressed", String(selected));
+    });
+    $("#image-fields").hidden = state.decoration !== "image";
+    $("#text-fields").hidden = state.decoration !== "text";
+    updatePreview();
+  });
+});
+
+$("#decoration-text").addEventListener("input", (event) => {
+  state.text = event.target.value;
+  updatePreview();
+});
+
+$("#decoration-font").addEventListener("change", (event) => {
+  state.font = event.target.value;
+  updatePreview();
+});
+$("#bar-image").addEventListener("load", updatePreview);
 
 $("#topping-filters").addEventListener("click", (event) => {
   const button = event.target.closest("[data-filter]");
@@ -663,34 +940,93 @@ $("#topping-search").addEventListener("input", (event) => {
   renderToppings();
 });
 
-$("#open-image-picker").addEventListener("click", () => {
-  $("#image-picker-dialog").showModal();
+async function prepareImage(file) {
+  const job=++state.imageJob;
+  state.sourceFile=file;
+  state.imageProcessing=true;
+  state.focusX=0.5;
+  state.focusY=0.5;
+  if(state.imageUrl&&state.ownsImageUrl)URL.revokeObjectURL(state.imageUrl);
+  state.imageUrl=null;
+  state.imageMode="plate";
+  state.ownsImageUrl=false;
+  state.previewBack=false;
+  $("#remove-image").hidden=false;
+  updatePreview();
+  try{
+    const url=URL.createObjectURL(file);
+    state.imageUrl=url;
+    state.ownsImageUrl=true;
+    const image=$("#bar-image");
+    image.src=url;
+    await image.decode();
+    if(job!==state.imageJob)return;
+  }catch(error){
+    if(job!==state.imageJob)return;
+    if(state.imageUrl&&state.ownsImageUrl)URL.revokeObjectURL(state.imageUrl);
+    state.imageUrl=null;
+    state.imageMode="";
+    state.ownsImageUrl=false;
+    $("#bar-image").removeAttribute("src");
+    showToast("Bildet kunne ikke leses. Velg et annet bilde.");
+  }finally{
+    if(job===state.imageJob){
+      state.imageProcessing=false;
+      $("#remove-image").hidden=!state.imageUrl;
+      updatePreview();
+    }
+  }
+}
+
+function handleImageFile(file) {
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    showToast("Velg et JPG-, PNG- eller WebP-bilde.");
+    return;
+  }
+  state.decoration = "image";
+  state.text = "";
+  state.demoImageName = file.name;
+  $("#decoration-text").value = "";
+  void prepareImage(file);
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "image";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = false;
+  $("#text-fields").hidden = true;
+}
+
+$("#image-upload").addEventListener("change", (event) => {
+  const [file] = event.target.files;
+  handleImageFile(file);
+  event.target.value = "";
 });
 
-$("#close-image-picker").addEventListener("click", () => {
-  $("#image-picker-dialog").close();
+const imageDropZone = $("#image-drop-zone");
+imageDropZone.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  imageDropZone.classList.add("dragging");
 });
-
-$("#image-picker-dialog").addEventListener("click", (event) => {
-  if (event.target === event.currentTarget) event.currentTarget.close();
+imageDropZone.addEventListener("dragleave", () => {
+  imageDropZone.classList.remove("dragging");
 });
-
-$("#choose-train-image").addEventListener("click", () => {
-  selectChocolateMotif("train");
-  $("#image-picker-dialog").close();
+imageDropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  imageDropZone.classList.remove("dragging");
+  handleImageFile(event.dataTransfer.files[0]);
 });
-
-$("#choose-flower-image").addEventListener("click", () => {
-  selectChocolateMotif("flower");
-  $("#image-picker-dialog").close();
-});
-
-$("#choose-congratulations-image").addEventListener("click", () => {
-  selectChocolateMotif("congratulations");
-  $("#image-picker-dialog").close();
+imageDropZone.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    $("#image-upload").click();
+  }
 });
 
 $("#remove-image").addEventListener("click", () => {
+  state.imageJob++;
+  state.imageProcessing=false;
   releaseUploadedImage();
   state.imageUrl = null;
   state.imageMode = "";
@@ -699,6 +1035,16 @@ $("#remove-image").addEventListener("click", () => {
   state.demoImage = false;
   state.demoImageName = "";
   state.previewBack = false;
+  state.decoration = "none";
+  state.text = "";
+  $("#decoration-text").value = "";
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "none";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = true;
+  $("#text-fields").hidden = true;
   $("#bar-image").removeAttribute("src");
   $("#bar-image").alt = "";
   $("#bar-image").hidden = true;
@@ -750,9 +1096,7 @@ $("#order-button").addEventListener("click", (event) => {
     image: state.imageUrl ? (state.demoImageName || "eget bilde") : "",
     imagePosition: state.imageMode === "plate" ? "på forsiden" : "på baksiden",
     price: $("#preview-price").textContent,
-    shape: state.shape,
     name: state.plateName,
-    occasion: state.occasion,
     packaging: state.packaging,
     allergens: getAllergens().join(", "),
   });
@@ -774,5 +1118,7 @@ document.querySelectorAll("[data-share-target]").forEach((button) => {
 });
 $("#share-more").addEventListener("click", shareWithOtherApps);
 
+$("#severe-allergy").addEventListener("change", readAllergenFilter);
+renderAllergenOptions();
 renderToppings();
 updatePreview();

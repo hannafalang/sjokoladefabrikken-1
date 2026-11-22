@@ -14,8 +14,7 @@
 <body>
   <header class="site-header">
     <a class="brand" href="#" aria-label="Sjokoladefabrikken, start på nytt">
-      <img class="brand__pig" src="./assets/gris-logo.png" alt="" aria-hidden="true">
-      <span>Marsipan- og sjokoladefabrikken</span>
+      <img class="brand__logo" src="./assets/marsipan-logo.png" alt="Marsipan- og sjokoladefabrikken">
     </a>
     <span class="header-note">Posebyen · Kristiansand</span>
   </header>
@@ -98,6 +97,14 @@
             <p class="demo-note">Smaksforslagene er enkle demo-forslag, ikke KI-genererte.</p>
           </section>
 
+          <details class="allergen-filter">
+            <summary>Allergenfilter</summary>
+            <p>Unngå valgte allergener. Ukjente opplysninger godkjennes ikke av filteret.</p>
+            <div id="allergen-options" class="allergen-options" role="group" aria-label="Allergener du vil unngå"></div>
+            <label class="severe-allergy"><input id="severe-allergy" type="checkbox"> Jeg må ta hensyn til alvorlig allergi</label>
+          </details>
+          <p class="allergen-status" id="allergen-filter-status" role="status"></p>
+
           <label class="search-label" for="topping-search">Søk etter smågodt</label>
           <input class="search-input" id="topping-search" type="search" placeholder="For eksempel lakris">
           <div class="filters" id="topping-filters" role="group" aria-label="Filtrer smågodt">
@@ -113,7 +120,6 @@
           </div>
           <div class="topping-grid" id="topping-options" aria-live="polite"></div>
           <p class="selection-count" id="selection-count" aria-live="polite">0 av 6 valgt</p>
-          <p class="allergen-disclaimer"><strong>Allergeninfo:</strong> Vises ved hvert godteri. Opplysningene er foreløpige eksempeldata og må kontrolleres mot faktiske produktdata før salg.</p>
         </section>
 
         <section class="builder-card personal-card" aria-labelledby="personal-title">
@@ -121,59 +127,65 @@
           <div class="personal-fields">
             <label for="plate-name">Navn på sjokoladen (valgfritt)</label>
             <input id="plate-name" type="text" maxlength="40" placeholder="For eksempel Romeo's Dream">
-
-            <label for="plate-occasion">Anledning</label>
-            <select id="plate-occasion">
-              <option value="">Velg anledning</option>
-              <option value="bursdag">Bursdag</option>
-              <option value="bryllup">Bryllup</option>
-              <option value="firma">Firma eller lansering</option>
-              <option value="gave">Gave</option>
-              <option value="annet">Annet</option>
-            </select>
-
-            <label for="plate-shape">Plateform</label>
-            <select id="plate-shape">
-              <option value="rektangel">Rektangelform (+0 kr)</option>
-              <option value="hjerte">Hjerteform (+19 kr)</option>
-              <option value="bamse">Bamseform (+19 kr)</option>
-            </select>
-
-            <fieldset class="packaging-options">
-              <legend>Innpakning</legend>
-              <label class="packaging-option selected" data-packaging="standard">
-                <input type="radio" name="packaging" value="standard" checked>
-                <span class="packaging-preview-box packaging-preview-box--standard" aria-hidden="true">
-                  <span></span>
-                </span>
-                <strong>Standard</strong>
-                <small>+0 kr</small>
-              </label>
-              <label class="packaging-option" data-packaging="gave">
-                <input type="radio" name="packaging" value="gave">
-                <span class="packaging-preview-box packaging-preview-box--gift" aria-hidden="true">
-                  <span></span>
-                </span>
-                <strong>Gaveeske</strong>
-                <small>+39 kr</small>
-              </label>
-              <label class="packaging-option" data-packaging="premium">
-                <input type="radio" name="packaging" value="premium">
-                <span class="packaging-preview-box packaging-preview-box--premium" aria-hidden="true">
-                  <span></span>
-                </span>
-                <strong>Premium</strong>
-                <small>+79 kr</small>
-              </label>
-            </fieldset>
           </div>
-          <label class="upload-label">Bilde på platen (valgfritt)</label>
-          <button type="button" class="upload-control" id="open-image-picker">
-            <span class="upload-icon" aria-hidden="true">↑</span>
-            <span><strong>Velg et motiv</strong><small>Velg blant tre motiver eller et bilde fra enheten din</small></span>
-          </label>
+          <div class="decoration-options" role="group" aria-label="Dekor på platen">
+            <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
+            <button type="button" data-decoration="image" aria-pressed="false">Bilde</button>
+            <button type="button" data-decoration="text" aria-pressed="false">Skrift</button>
+          </div>
+          <div id="image-fields" hidden>
+            <div class="image-drop-zone" id="image-drop-zone" tabindex="0" role="button" aria-label="Dra inn eller velg bilde">
+              <span class="upload-icon" aria-hidden="true">↑</span>
+              <strong>Dra bildet hit</strong>
+              <span>eller</span>
+              <label for="image-upload">Velg bilde</label>
+              <small>JPG, PNG eller WebP</small>
+              <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
+            </div>
+          </div>
+          <div id="text-fields" class="personal-fields" hidden>
+            <div>
+              <label for="decoration-text">Din tekst (maks 40 tegn)</label>
+              <input id="decoration-text" maxlength="40" placeholder="For eksempel: Gratulerer!">
+            </div>
+            <div>
+              <label for="decoration-font">Skrifttype</label>
+              <select id="decoration-font">
+                <option value="classic">Klassisk</option>
+                <option value="handwriting">Håndskrift</option>
+                <option value="modern">Moderne</option>
+              </select>
+            </div>
+          </div>
           <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
-          <p class="privacy-note">Bildene lagres ikke eller lastes opp i prototypen. Bildet vises på baksiden, separat fra toppingene på forsiden. Snu platen i forhåndsvisningen for å se hver side.</p>
+          <p class="privacy-note">Bildet vises på forsiden. Toppingene vises på baksiden.</p>
+          <fieldset class="packaging-options">
+            <legend>Innpakning</legend>
+            <label class="packaging-option selected" data-packaging="standard">
+              <input type="radio" name="packaging" value="standard" checked>
+              <span class="packaging-preview-box packaging-preview-box--standard" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Standard</strong>
+              <small>+0 kr</small>
+            </label>
+            <label class="packaging-option" data-packaging="gave">
+              <input type="radio" name="packaging" value="gave">
+              <span class="packaging-preview-box packaging-preview-box--gift" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Gaveeske</strong>
+              <small>+39 kr</small>
+            </label>
+            <label class="packaging-option" data-packaging="premium">
+              <input type="radio" name="packaging" value="premium">
+              <span class="packaging-preview-box packaging-preview-box--premium" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Premium</strong>
+              <small>+79 kr</small>
+            </label>
+          </fieldset>
         </section>
       </div>
 
@@ -188,13 +200,8 @@
             <div class="chocolate-bar__inner">
               <div class="chocolate-face chocolate-face--front">
                 <img class="bar-artwork" id="bar-artwork" alt="" hidden>
-                <div class="chocolate-pieces" aria-hidden="true">
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                </div>
-                <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
+                <canvas id="bar-relief" class="bar-relief" width="1280" height="720" role="img" aria-label="Opphøyd motiv i sjokolade" hidden></canvas>
+                <div class="bar-name" id="bar-name" hidden></div>
                 <div class="bear-face" aria-hidden="true">
                   <span class="bear-face__ear bear-face__ear--left"></span>
                   <span class="bear-face__ear bear-face__ear--right"></span>
@@ -205,12 +212,7 @@
                 </div>
               </div>
               <div class="chocolate-face chocolate-face--back">
-                <div class="chocolate-pieces chocolate-pieces--back" aria-hidden="true">
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                  <span></span><span></span><span></span><span></span><span></span><span></span>
-                </div>
+                <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
                 <img class="bar-image" id="bar-image" alt="" hidden>
               </div>
             </div>
@@ -223,7 +225,6 @@
         </div>
         <div class="preview-details">
           <strong id="preview-chocolate">Melkesjokolade</strong>
-          <p id="preview-name" hidden></p>
           <p id="preview-toppings">Uten topping</p>
           <p class="allergen-preview" id="preview-allergens">Allergener: Melk, Soya</p>
           <div class="price-row"><span>Eksempelpris</span><strong id="preview-price">179 kr</strong></div>
@@ -246,54 +247,6 @@
       </clipPath>
     </defs>
   </svg>
-
-  <dialog class="image-picker-dialog" id="image-picker-dialog" aria-labelledby="image-picker-title">
-    <div class="image-picker">
-      <div class="image-picker__header">
-        <div>
-          <p class="eyebrow">Bilde på sjokoladen</p>
-          <h2 id="image-picker-title">Velg et bilde</h2>
-        </div>
-        <button type="button" class="close-button" id="close-image-picker" aria-label="Lukk bildevalg">×</button>
-      </div>
-      <p class="image-picker__intro">Velg et motiv til baksiden. Sjokoladebildet tilpasses fargen du har valgt.</p>
-      <div class="image-choice-grid">
-        <article class="image-choice">
-          <img src="assets/togmotiv-valg.png" alt="Fargerik illustrasjon av et tog">
-          <div class="image-choice__details">
-            <div>
-              <h3>Tog</h3>
-              <p>Sjokoladeplate med togrelieff.</p>
-            </div>
-            <button type="button" class="order-button" id="choose-train-image">Velg tog</button>
-          </div>
-        </article>
-        <article class="image-choice">
-          <img src="assets/blomstmotiv.png" alt="Illustrasjon av en rosa blomst">
-          <div class="image-choice__details">
-            <div>
-              <h3>Blomst</h3>
-              <p>Sjokoladeplate med blomsterrelieff.</p>
-            </div>
-            <button type="button" class="order-button" id="choose-flower-image">Velg blomst</button>
-          </div>
-        </article>
-        <article class="image-choice">
-          <div class="greeting-motif" role="img" aria-label="Tekstmotiv: Gratulerer med dagen">
-            <span>Gratulerer</span>
-            <strong>med dagen</strong>
-          </div>
-          <div class="image-choice__details">
-            <div>
-              <h3>Gratulerer</h3>
-              <p>Tekstmotiv på sjokoladeplaten.</p>
-            </div>
-            <button type="button" class="order-button" id="choose-congratulations-image">Velg tekst</button>
-          </div>
-        </article>
-      </div>
-    </div>
-  </dialog>
 
   <dialog class="share-dialog" id="share-dialog" aria-labelledby="share-dialog-title">
     <div class="share-dialog__content">

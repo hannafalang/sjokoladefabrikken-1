@@ -1,0 +1,20 @@
+(function (root) {
+  const combinations = [
+    { id: 'milk-salt-crunch', name: 'Søtt møter salt', chocolateId: 'milk', toppingIds: ['salted-caramel', 'sea-salt', 'cookie-crunch'], tags: ['sweet', 'salt', 'crunch'], explanation: 'Rund melkesjokolade og karamell får kontrast fra havsalt, mens kjeksknas gir litt tyggemotstand.' },
+    { id: 'milk-berry', name: 'Bær og myke skyer', chocolateId: 'milk', toppingIds: ['strawberry', 'marshmallow', 'raspberry'], tags: ['sweet', 'fruit'], explanation: 'Melkesjokolade og marshmallows gir myk sødme, mens jordbær og bringebær tilfører en fruktig kontrast.' },
+    { id: 'milk-nuts', name: 'Den nøttete klassikeren', chocolateId: 'milk', toppingIds: ['hazelnut', 'almond', 'salted-caramel'], tags: ['sweet', 'crunch', 'salt'], explanation: 'Hasselnøtter og mandler gir knas til den runde sjokoladen. Salt karamell binder smakene sammen.' },
+    { id: 'milk-chocolate', name: 'Sjokolade på sjokolade', chocolateId: 'milk', toppingIds: ['chocolate-chips', 'cookie-crunch', 'sea-salt'], tags: ['sweet', 'crunch', 'salt'], explanation: 'Sjokoladebiter gir mer sjokoladesmak, kjeksknas gir kontrast i konsistensen, og litt havsalt runder av.' },
+    { id: 'dark-raspberry', name: 'Mørk og frisk', chocolateId: 'dark', toppingIds: ['raspberry', 'sea-salt', 'chocolate-chips'], tags: ['fruit', 'salt', 'intense'], explanation: 'Bringebær gir en frisk kontrast til mørk sjokolade. Sjokoladebiter gir fylde, og havsalt fremhever smakene.' },
+    { id: 'dark-licorice', name: 'Lakris i mørket', chocolateId: 'dark', toppingIds: ['licorice', 'raspberry', 'sea-salt'], tags: ['salt', 'fruit', 'intense'], explanation: 'Lakris og mørk sjokolade gir en markant kombinasjon, balansert av bringebær og et lite salt innslag.' },
+    { id: 'dark-nuts', name: 'Mørk med knas', chocolateId: 'dark', toppingIds: ['hazelnut', 'almond', 'sea-salt'], tags: ['crunch', 'salt', 'intense'], explanation: 'Nøttenes smak og sprø konsistens passer til mørk sjokolade. Havsalt gir en tydelig avslutning.' },
+    { id: 'dark-blueberry', name: 'Blåbærkveld', chocolateId: 'dark', toppingIds: ['blueberry', 'raspberry', 'sugar-pearls'], tags: ['fruit', 'crunch'], explanation: 'Blåbær og bringebær gir et fruktig følge til mørk sjokolade. Sukkerperler gir et lite søtt knas.' },
+    { id: 'white-berries', name: 'Hvit bærdrøm', chocolateId: 'white', toppingIds: ['raspberry', 'blueberry', 'strawberry'], tags: ['sweet', 'fruit'], explanation: 'Hvit sjokolades sødme møter tre bærsmaker. Bringebær, blåbær og jordbær gir variasjon i hver bit.' },
+    { id: 'white-crunch', name: 'Lyst og sprøtt', chocolateId: 'white', toppingIds: ['cookie-crunch', 'almond', 'sea-salt'], tags: ['sweet', 'crunch', 'salt'], explanation: 'Kjeksknas og mandler gir struktur til den hvite sjokoladen, mens havsalt balanserer sødmen.' },
+    { id: 'white-clouds', name: 'Søte skyer', chocolateId: 'white', toppingIds: ['marshmallow', 'sugar-pearls', 'strawberry'], tags: ['sweet', 'fruit'], explanation: 'Marshmallows og hvit sjokolade gir en søt og myk kombinasjon, med jordbær og sukkerperler som kontrast.' },
+    { id: 'pink-berries', name: 'Rosa bærfest', chocolateId: 'pink', toppingIds: ['raspberry', 'strawberry', 'sugar-pearls'], tags: ['sweet', 'fruit', 'crunch'], explanation: 'Rosa sjokolade får følge av bringebær og jordbær. Sukkerperler gir et diskret knas.' },
+    { id: 'pink-blueberry', name: 'Rosa og blå', chocolateId: 'pink', toppingIds: ['blueberry', 'raspberry', 'marshmallow'], tags: ['sweet', 'fruit'], explanation: 'Blåbær og bringebær gir bærpreg, mens marshmallows gir en myk kontrast til sjokoladen.' },
+    { id: 'pink-salt', name: 'Rosa med en salt vri', chocolateId: 'pink', toppingIds: ['salted-caramel', 'sea-salt', 'cookie-crunch'], tags: ['sweet', 'salt', 'crunch'], explanation: 'Rosa sjokolade og salt karamell får en tydelig salt kontrast og sprø tekstur fra kjeksknas.' },
+  ];
+  if (typeof module !== 'undefined' && module.exports) module.exports = combinations;
+  else root.FRYDA_COMBINATIONS = combinations;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
