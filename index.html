@@ -4,22 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#faefe2">
-  <title>SjokoDesigneren — Fryda AS</title>
+  <title>SjokoDesigneren — Sjokoladefabrikken</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=stored-flavors-1">
-  <script src="catalog.js?v=stored-flavors-1" defer></script>
-  <script src="flavor-combinations.js?v=stored-flavors-1" defer></script>
-  <script src="taste-chat.js?v=stored-flavors-1" defer></script>
-  <script src="app.js?v=stored-flavors-1" defer></script>
-  <script src="professor.js?v=stored-flavors-1" defer></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
   <header class="site-header">
     <a class="brand" href="#" aria-label="Sjokoladefabrikken, start på nytt">
-      <span class="brand__star" aria-hidden="true">✦</span>
-      <span>Fryda AS · Sjokoladefabrikken</span>
+      <img class="brand__logo" src="./assets/marsipan-logo.png" alt="Marsipan- og sjokoladefabrikken">
     </a>
     <span class="header-note">Posebyen · Kristiansand</span>
   </header>
@@ -28,7 +23,7 @@
     <section class="intro" id="discovery">
       <p class="eyebrow">Sjokodesigneren</p>
       <h1>Lag din egen sjokoladeplate</h1>
-      <p>Sett sammen favorittsmaker, velg bilde, skrift eller ingen dekor og se sjokoladeplaten og eksempelprisen mens du designer.</p>
+      <p>Sett sammen favorittsmaker, legg til et bilde og se sjokoladeplaten og eksempelprisen mens du designer.</p>
     </section>
 
     <nav class="journey-nav" aria-label="Kundereise">
@@ -39,16 +34,30 @@
       <a href="#personal-title"><span>3</span> Design</a>
       <span class="journey-arrow" aria-hidden="true">→</span>
       <a href="#preview-title"><span>4</span> Bestill</a>
-      <span class="journey-arrow" aria-hidden="true">→</span>
-      <a href="#share-design"><span>5</span> Motta og dele</a>
     </nav>
 
     <div class="designer-layout">
       <div class="builder">
         <section class="builder-card chocolate-card" aria-labelledby="chocolate-title">
-          <h2 id="chocolate-title">1. Velg fyll</h2>
-          <p class="personal-note">Fyll er sjokoladetypen i selve platen.</p>
-          <div class="chocolate-options" id="chocolate-options"></div>
+          <h2 id="chocolate-title">1. Velg sjokolade</h2>
+          <div class="chocolate-options" id="chocolate-options">
+            <button type="button" class="chocolate-option selected" data-chocolate="milk" aria-pressed="true">
+              <span class="chocolate-swatch swatch-milk" aria-hidden="true"></span>
+              <span>Melkesjokolade</span>
+            </button>
+            <button type="button" class="chocolate-option" data-chocolate="dark" aria-pressed="false">
+              <span class="chocolate-swatch swatch-dark" aria-hidden="true"></span>
+              <span>Mørk sjokolade</span>
+            </button>
+            <button type="button" class="chocolate-option" data-chocolate="white" aria-pressed="false">
+              <span class="chocolate-swatch swatch-white" aria-hidden="true"></span>
+              <span>Hvit sjokolade</span>
+            </button>
+            <button type="button" class="chocolate-option" data-chocolate="pink" aria-pressed="false">
+              <span class="chocolate-swatch swatch-pink" aria-hidden="true"></span>
+              <span>Rosa sjokolade</span>
+            </button>
+          </div>
           <p class="base-price-note">Eksempelpris fra 179 kr · opptil 6 typer smågodt</p>
         </section>
 
@@ -56,33 +65,46 @@
           <div class="section-title-row">
             <h2 id="toppings-title">2. Velg smågodt</h2>
             <button class="professor-toggle" id="professor-toggle" type="button" aria-expanded="false" aria-controls="professor-panel">
-              <span aria-hidden="true">✦</span> Spør Smaksprofessoren
+              <span aria-hidden="true">✦</span> Smaksprofessoren
             </button>
           </div>
 
           <section class="professor-panel" id="professor-panel" hidden aria-labelledby="professor-title">
             <div class="professor-panel__header">
-              <div><p class="eyebrow">Fryda AS · Smaksatelier</p><h3 id="professor-title">Smaksprofessoren</h3><p>Små innfall. Store smaksopplevelser.</p></div>
-              <button type="button" class="close-button" id="close-professor" aria-label="Lukk Smaksprofessoren">×</button>
+              <div>
+                <h3 id="professor-title">Chat med Smaksprofessoren</h3>
+                <p>Fortell hva du liker, så finner vi en kombinasjon sammen.</p>
+              </div>
+              <button type="button" class="close-button" id="close-professor" aria-label="Lukk">×</button>
             </div>
-            <p class="ai-connection" role="status">Lagrede smakskombinasjoner · ikke KI</p>
-            <div class="chat-log" id="chat-log" role="log" aria-label="Samtale med Smaksprofessoren" aria-live="polite" tabindex="0"></div>
-            <div class="suggestion-buttons" aria-label="Velg et smakstema">
-              <button type="button" data-prompt="Søtt og salt">Søtt og salt</button>
-              <button type="button" data-prompt="Friskt og fruktig">Friskt og fruktig</button>
-              <button type="button" data-prompt="Overrask meg">Overrask meg</button>
+            <div class="chat-log" id="chat-log" role="log" aria-live="polite">
+              <div class="chat-message chat-message--professor">
+                <strong>Smaksprofessoren</strong>
+                <p>Hei! Leter du etter en gave, en favorittsmak eller noe helt nytt?</p>
+              </div>
+            </div>
+            <div class="suggestion-buttons">
+              <button type="button" data-prompt="gave">Jeg leter etter en gave</button>
+              <button type="button" data-prompt="nytt">Jeg vil prøve noe nytt</button>
             </div>
             <form class="chat-form" id="chat-form">
-              <label for="chat-input">Hva har du lyst på?</label>
-              <div class="chat-form__row"><input id="chat-input" type="text" maxlength="1500" autocomplete="off" placeholder="Jeg liker mørk sjokolade, men ikke for bitter …"><button id="chat-send" type="submit">Send</button></div>
+              <label for="chat-input">Melding</label>
+              <div class="chat-form__row">
+                <input id="chat-input" type="text" placeholder="F.eks. Hva passer til mørk sjokolade?">
+                <button type="submit">Send</button>
+              </div>
             </form>
-            <p id="chat-error" class="chat-error" role="alert" hidden></p>
-            <div class="chat-actions"><button type="button" id="chat-reset">Ny samtale</button></div>
-            <p class="ai-privacy">Svarene hentes fra lagrede smakskombinasjoner ut fra ordene du skriver. Samtalen lagres bare i denne nettleserøkten og sendes ikke til en KI-tjeneste.</p>
+            <p class="demo-note">Smaksforslagene er enkle demo-forslag, ikke KI-genererte.</p>
           </section>
 
-          <details class="allergen-filter"><summary>Allergenfilter</summary><p>Unngå valgte allergener. Ukjente opplysninger godkjennes ikke av filteret.</p><div id="allergen-options" class="allergen-options" role="group" aria-label="Allergener du vil unngå"></div><label class="severe-allergy"><input id="severe-allergy" type="checkbox"> Jeg må ta hensyn til alvorlig allergi</label></details>
+          <details class="allergen-filter">
+            <summary>Allergenfilter</summary>
+            <p>Unngå valgte allergener. Ukjente opplysninger godkjennes ikke av filteret.</p>
+            <div id="allergen-options" class="allergen-options" role="group" aria-label="Allergener du vil unngå"></div>
+            <label class="severe-allergy"><input id="severe-allergy" type="checkbox"> Jeg må ta hensyn til alvorlig allergi</label>
+          </details>
           <p class="allergen-status" id="allergen-filter-status" role="status"></p>
+
           <label class="search-label" for="topping-search">Søk etter smågodt</label>
           <input class="search-input" id="topping-search" type="search" placeholder="For eksempel lakris">
           <div class="filters" id="topping-filters" role="group" aria-label="Filtrer smågodt">
@@ -93,15 +115,19 @@
             <button type="button" class="filter-chip" data-filter="Sprøtt" aria-pressed="false">Sprøtt</button>
             <button type="button" class="filter-chip" data-filter="Fruktig" aria-pressed="false">Fruktig</button>
             <button type="button" class="filter-chip" data-filter="Sterkt" aria-pressed="false">Sterkt</button>
+            <button type="button" class="filter-chip" data-filter="Nøtter" aria-pressed="false">Nøtter</button>
+            <button type="button" class="filter-chip" data-filter="Sjokolade" aria-pressed="false">Sjokolade</button>
           </div>
           <div class="topping-grid" id="topping-options" aria-live="polite"></div>
           <p class="selection-count" id="selection-count" aria-live="polite">0 av 6 valgt</p>
-          <p class="allergen-disclaimer"><strong>Allergeninfo:</strong> Produktopplysningene er ikke verifisert. Matinfo er ikke tilkoblet. Avklar ingredienser og krysskontakt med Fryda AS før bestilling, særlig ved alvorlig allergi.</p>
         </section>
 
         <section class="builder-card personal-card" aria-labelledby="personal-title">
           <h2 id="personal-title">3. Gjør platen personlig</h2>
-          <p class="personal-note">Velg bilde, skrift eller ingenting. Forsiden får kun bildet eller skriften som et detaljert, opphøyd sjokoladerelieff. Toppingen legges på den glatte baksiden.</p>
+          <div class="personal-fields">
+            <label for="plate-name">Navn på sjokoladen (valgfritt)</label>
+            <input id="plate-name" type="text" maxlength="40" placeholder="For eksempel Romeo's Dream">
+          </div>
           <div class="decoration-options" role="group" aria-label="Dekor på platen">
             <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
             <button type="button" data-decoration="image" aria-pressed="false">Bilde</button>
@@ -113,19 +139,53 @@
               <strong>Dra bildet hit</strong>
               <span>eller</span>
               <label for="image-upload">Velg bilde</label>
-              <small>JPG, PNG eller WebP · tydelige motiver fungerer best</small>
+              <small>JPG, PNG eller WebP</small>
               <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
             </div>
-            <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
-            <p id="image-status" class="personal-note" role="status" aria-live="polite"></p>
-            <button type="button" class="remove-image" id="retry-image" hidden>Prøv bildet igjen</button>
-            <p class="personal-note">Relieffet starter 0,5 mm over platen og øker med 3 mm per nivå: 0,5 → 3,5 → 6,5 → 9,5 mm. Nivåene har avrundede overganger og mykere bakgrunn. Bildet behandles lokalt.</p>
           </div>
           <div id="text-fields" class="personal-fields" hidden>
-            <p class="personal-note text-relief-note">Bokstavene formes i sjokolade og heves 3,5 mm fra platen.</p>
-            <div><label for="decoration-text">Din tekst (maks 40 tegn)</label><input id="decoration-text" maxlength="40" placeholder="For eksempel: Gratulerer!"></div>
-            <div><label for="decoration-font">Skrifttype</label><select id="decoration-font"><option value="classic">Klassisk</option><option value="handwriting">Håndskrift</option><option value="modern">Moderne</option></select></div>
+            <div>
+              <label for="decoration-text">Din tekst (maks 40 tegn)</label>
+              <input id="decoration-text" maxlength="40" placeholder="For eksempel: Gratulerer!">
+            </div>
+            <div>
+              <label for="decoration-font">Skrifttype</label>
+              <select id="decoration-font">
+                <option value="classic">Klassisk</option>
+                <option value="handwriting">Håndskrift</option>
+                <option value="modern">Moderne</option>
+              </select>
+            </div>
           </div>
+          <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
+          <p class="privacy-note">Bildet vises på forsiden. Toppingene vises på baksiden.</p>
+          <fieldset class="packaging-options">
+            <legend>Innpakning</legend>
+            <label class="packaging-option selected" data-packaging="standard">
+              <input type="radio" name="packaging" value="standard" checked>
+              <span class="packaging-preview-box packaging-preview-box--standard" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Standard</strong>
+              <small>+0 kr</small>
+            </label>
+            <label class="packaging-option" data-packaging="gave">
+              <input type="radio" name="packaging" value="gave">
+              <span class="packaging-preview-box packaging-preview-box--gift" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Gaveeske</strong>
+              <small>+39 kr</small>
+            </label>
+            <label class="packaging-option" data-packaging="premium">
+              <input type="radio" name="packaging" value="premium">
+              <span class="packaging-preview-box packaging-preview-box--premium" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Premium</strong>
+              <small>+79 kr</small>
+            </label>
+          </fieldset>
         </section>
       </div>
 
@@ -133,35 +193,94 @@
         <div class="preview-card__heading">
           <p class="eyebrow">Forhåndsvisning</p>
           <h2 id="preview-title">Din sjokoladeplate</h2>
-          <div class="side-options" role="group" aria-label="Vis side av sjokoladeplaten"><button type="button" data-side="front" class="selected" aria-pressed="true">Forside</button><button type="button" data-side="back" aria-pressed="false">Bakside</button></div>
-          <p class="side-note" id="side-note">Forsiden med bilde eller skrift som opphøyd sjokoladerelieff.</p>
         </div>
         <div class="preview-stage">
+          <p class="flip-hint" id="flip-hint" aria-live="polite">Forside · toppingene</p>
           <div class="chocolate-bar" id="chocolate-bar" aria-label="Melkesjokoladeplate">
-            <div class="chocolate-pieces" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-              <span></span><span></span><span></span><span></span><span></span><span></span>
+            <div class="chocolate-bar__inner">
+              <div class="chocolate-face chocolate-face--front">
+                <img class="bar-artwork" id="bar-artwork" alt="" hidden>
+                <canvas id="bar-relief" class="bar-relief" width="1280" height="720" role="img" aria-label="Opphøyd motiv i sjokolade" hidden></canvas>
+                <div class="bar-name" id="bar-name" hidden></div>
+                <div class="bear-face" aria-hidden="true">
+                  <span class="bear-face__ear bear-face__ear--left"></span>
+                  <span class="bear-face__ear bear-face__ear--right"></span>
+                  <span class="bear-face__eye bear-face__eye--left"></span>
+                  <span class="bear-face__eye bear-face__eye--right"></span>
+                  <span class="bear-face__nose"></span>
+                  <span class="bear-face__mouth"></span>
+                </div>
+              </div>
+              <div class="chocolate-face chocolate-face--back">
+                <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
+                <img class="bar-image" id="bar-image" alt="" hidden>
+              </div>
             </div>
-            <div class="bar-toppings" id="bar-toppings" aria-hidden="true"></div>
-            <canvas id="bar-relief" class="bar-relief" width="1280" height="720" role="img" aria-label="Opphøyd motiv i sjokolade" hidden></canvas>
-            <img class="bar-image" id="bar-image" alt="Ditt bilde i sjokoladerelieff" hidden>
           </div>
+          <div class="selected-packaging" id="selected-packaging" aria-live="polite">
+            <span class="selected-packaging__box selected-packaging__box--standard" aria-hidden="true"><span></span></span>
+            <span id="selected-packaging-text">Standardemballasje</span>
+          </div>
+          <button type="button" class="flip-button" id="flip-chocolate" hidden aria-pressed="false">↻ Snu sjokoladen</button>
         </div>
         <div class="preview-details">
           <strong id="preview-chocolate">Melkesjokolade</strong>
           <p id="preview-toppings">Uten topping</p>
+          <p class="allergen-preview" id="preview-allergens">Allergener: Melk, Soya</p>
           <div class="price-row"><span>Eksempelpris</span><strong id="preview-price">179 kr</strong></div>
-          <button type="button" class="order-button" id="order-button">Bestill <span aria-hidden="true">→</span></button>
-          <button type="button" class="share-button" id="share-design">Del designet</button>
-          <p class="price-note">Eksempelpriser: base 179 kr · noen toppinger +9 kr · bilde +29 kr</p>
-          <p class="order-disclaimer">Prototype – bestillingsknappen sender ingen bestilling.</p>
-          <p class="delivery-note">Betaling, leveringstid, sporing og ordrebekreftelse er ikke koblet til ennå.</p>
+          <a class="order-button order-button--link" id="order-button" href="bestilling.html">Bestill <span aria-hidden="true">→</span></a>
+          <button type="button" class="share-button" id="share-design">Del bilde</button>
+          <p class="price-note">Eksempelpriser: base 179 kr · topping +9 kr · bilde +29 kr · form +19 kr · innpakning +39/79 kr</p>
+          <p class="order-disclaimer">Prototype – bestillingen lagres eller sendes ikke.</p>
         </div>
       </aside>
     </div>
   </main>
+
+  <svg class="shape-definitions" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="heart-shape" clipPathUnits="objectBoundingBox">
+        <path d="M.5 .94 C.39 .83 .05 .59 .04 .31 C.03 .1 .22 .02 .38 .08 C.44 .1 .48 .15 .5 .21 C.55 .08 .7 .02 .84 .07 C1 .13 .98 .35 .92 .5 C.84 .69 .63 .86 .5 .94Z"/>
+      </clipPath>
+      <clipPath id="bear-shape" clipPathUnits="objectBoundingBox">
+        <path d="M.5 .96 C.31 .96 .16 .82 .14 .64 C.02 .57 .03 .4 .13 .34 C.07 .22 .14 .07 .27 .07 C.37 .07 .44 .14 .46 .24 C.49 .22 .52 .22 .55 .24 C.58 .14 .66 .07 .76 .07 C.89 .07 .96 .22 .88 .34 C.98 .4 .98 .57 .86 .64 C.84 .82 .69 .96 .5 .96Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+
+  <dialog class="share-dialog" id="share-dialog" aria-labelledby="share-dialog-title">
+    <div class="share-dialog__content">
+      <div class="share-dialog__header">
+        <div>
+          <p class="eyebrow">Del designet ditt</p>
+          <h2 id="share-dialog-title">Del sjokoladeplaten</h2>
+        </div>
+        <button type="button" class="close-button" id="close-share" aria-label="Lukk deling">×</button>
+      </div>
+      <p class="share-image-loading" id="share-image-loading" role="status">Lager bilde av sjokoladeplaten …</p>
+      <img class="share-image-preview" id="share-image-preview" alt="Bilde av sjokoladeplaten din" hidden>
+      <div class="social-share-buttons" role="group" aria-label="Velg app">
+        <button type="button" data-share-target="Instagram" disabled>
+          <svg class="social-icon social-icon--instagram" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="social-icon__dot" cx="18" cy="6" r="1"/></svg>
+          <span>Instagram</span>
+        </button>
+        <button type="button" data-share-target="Facebook" disabled>
+          <svg class="social-icon social-icon--facebook" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 21v-8h3l.5-3H14V8c0-.9.4-1.5 1.6-1.5H18V3.2c-.8-.1-1.7-.2-2.8-.2C12.4 3 11 4.7 11 7.7V10H8v3h3v8z"/></svg>
+          <span>Facebook</span>
+        </button>
+        <button type="button" data-share-target="WhatsApp" disabled>
+          <svg class="social-icon social-icon--whatsapp" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.7L3 21l4.5-1.2A9 9 0 1 0 12 3Z"/><path class="social-icon__cutout" d="M9 8.2c-.3-.6-.6-.6-.9-.6-.2 0-.5 0-.7.3-.3.3-.9.9-.9 2.2s1 2.6 1.1 2.8c.2.2 1.9 3.1 4.7 4.2 2.3.9 2.8.7 3.3.6.5-.1 1.6-.7 1.8-1.3.2-.7.2-1.2.1-1.3-.1-.1-.3-.2-.7-.4l-2-.9c-.3-.1-.5-.2-.7.2s-.8.9-1 1.1c-.2.2-.4.3-.7.1-.4-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.4 0-.5.2-.7l.5-.6.3-.5c.1-.2 0-.4 0-.6z"/></svg>
+          <span>WhatsApp</span>
+        </button>
+        <button type="button" class="share-more-button" id="share-more" disabled>
+          <svg class="social-icon social-icon--more" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <span>Flere apper</span>
+        </button>
+      </div>
+      <p class="share-dialog__hint">Velg hvor du vil dele bildet. Hvis appen ikke kan åpnes direkte, lastes bildet ned så du kan legge det ved selv.</p>
+      <button type="button" class="share-download" id="download-design" disabled>Last ned bilde</button>
+    </div>
+  </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 </body>
