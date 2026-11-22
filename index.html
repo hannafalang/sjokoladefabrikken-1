@@ -173,7 +173,14 @@
             <button type="button" data-decoration="text" aria-pressed="false">Skrift</button>
           </div>
           <div id="image-fields" hidden>
-            <p class="privacy-note">Velg blant motivene i bildet-dialogen, eller last opp en egen JPG-, PNG- eller WebP-fil.</p>
+            <div class="image-drop-zone" id="image-drop-zone" tabindex="0" role="button" aria-label="Dra inn eller velg bilde">
+              <span class="upload-icon" aria-hidden="true">↑</span>
+              <strong>Dra bildet hit</strong>
+              <span>eller</span>
+              <label for="image-upload">Velg bilde</label>
+              <small>JPG, PNG eller WebP</small>
+              <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
+            </div>
           </div>
           <div id="text-fields" class="personal-fields" hidden>
             <div>
@@ -189,13 +196,8 @@
               </select>
             </div>
           </div>
-          <label class="upload-label">Bilde på platen (valgfritt)</label>
-          <button type="button" class="upload-control" id="open-image-picker">
-            <span class="upload-icon" aria-hidden="true">↑</span>
-            <span><strong>Velg et motiv</strong><small>Velg blant tre motiver eller et bilde fra enheten din</small></span>
-          </label>
           <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
-          <p class="privacy-note">Bildene lagres ikke eller lastes opp i prototypen. Bildet vises på baksiden, separat fra toppingene på forsiden. Snu platen i forhåndsvisningen for å se hver side.</p>
+          <p class="privacy-note">Bildet vises på forsiden. Toppingene vises på baksiden.</p>
         </section>
       </div>
 
@@ -269,58 +271,6 @@
       </clipPath>
     </defs>
   </svg>
-
-  <dialog class="image-picker-dialog" id="image-picker-dialog" aria-labelledby="image-picker-title">
-    <div class="image-picker">
-      <div class="image-picker__header">
-        <div>
-          <p class="eyebrow">Bilde på sjokoladen</p>
-          <h2 id="image-picker-title">Velg et bilde</h2>
-        </div>
-        <button type="button" class="close-button" id="close-image-picker" aria-label="Lukk bildevalg">×</button>
-      </div>
-      <p class="image-picker__intro">Velg et motiv til baksiden. Sjokoladebildet tilpasses fargen du har valgt.</p>
-      <div class="image-choice-grid">
-        <article class="image-choice">
-          <img src="assets/togmotiv-valg.png" alt="Fargerik illustrasjon av et tog">
-          <div class="image-choice__details">
-            <div>
-              <h3>Tog</h3>
-              <p>Sjokoladeplate med togrelieff.</p>
-            </div>
-            <button type="button" class="order-button" id="choose-train-image">Velg tog</button>
-          </div>
-        </article>
-        <article class="image-choice">
-          <img src="assets/blomstmotiv.png" alt="Illustrasjon av en rosa blomst">
-          <div class="image-choice__details">
-            <div>
-              <h3>Blomst</h3>
-              <p>Sjokoladeplate med blomsterrelieff.</p>
-            </div>
-            <button type="button" class="order-button" id="choose-flower-image">Velg blomst</button>
-          </div>
-        </article>
-        <article class="image-choice">
-          <div class="greeting-motif" role="img" aria-label="Tekstmotiv: Gratulerer med dagen">
-            <span>Gratulerer</span>
-            <strong>med dagen</strong>
-          </div>
-          <div class="image-choice__details">
-            <div>
-              <h3>Gratulerer</h3>
-              <p>Tekstmotiv på sjokoladeplaten.</p>
-            </div>
-            <button type="button" class="order-button" id="choose-congratulations-image">Velg tekst</button>
-          </div>
-        </article>
-      </div>
-      <label class="upload-control" for="image-upload">
-        <span><strong>Last opp eget bilde</strong><small>JPG, PNG eller WebP · bildet vises på forsiden</small></span>
-        <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
-      </label>
-    </div>
-  </dialog>
 
   <dialog class="share-dialog" id="share-dialog" aria-labelledby="share-dialog-title">
     <div class="share-dialog__content">

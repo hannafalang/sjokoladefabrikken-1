@@ -73,7 +73,7 @@ const state = {
   ownsImageUrl: false,
   demoImage: false,
   demoImageName: "",
-  previewBack: false,
+  previewBack: true,
   decoration: "none",
   text: "",
   font: "classic",
@@ -174,7 +174,6 @@ function updatePreview() {
   const hasDesign = Boolean(state.imageUrl) || (state.decoration === "text" && state.text.trim());
   const hasToppings = state.selectedToppings.size > 0;
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
-  if (!hasDesign && !hasToppings) state.previewBack = false;
   bar.dataset.shape = state.shape;
   bar.dataset.artwork = String(hasPlateArtwork);
   bar.style.setProperty("--bar-light", light);
@@ -186,7 +185,7 @@ function updatePreview() {
   $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
   $("#flip-hint").textContent = state.previewBack
-    ? `Bakside · ${hasToppings ? "toppingene" : state.demoImageName || "sjokoladeplaten"}`
+    ? "Bakside · toppingene"
     : state.decoration === "text" && state.text.trim()
       ? "Forside · din tekst"
       : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
@@ -714,20 +713,10 @@ $("#topping-search").addEventListener("input", (event) => {
   renderToppings();
 });
 
-$("#open-image-picker").addEventListener("click", () => {
-  $("#image-picker-dialog").showModal();
-});
-
-$("#close-image-picker").addEventListener("click", () => {
-  $("#image-picker-dialog").close();
-});
-
-$("#image-upload").addEventListener("change", (event) => {
-  const [file] = event.target.files;
+function handleImageFile(file) {
   if (!file) return;
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
     showToast("Velg et JPG-, PNG- eller WebP-bilde.");
-    event.target.value = "";
     return;
   }
   const url = URL.createObjectURL(file);
@@ -742,57 +731,32 @@ $("#image-upload").addEventListener("change", (event) => {
   });
   $("#image-fields").hidden = false;
   $("#text-fields").hidden = true;
-  $("#image-picker-dialog").close();
+}
+
+$("#image-upload").addEventListener("change", (event) => {
+  const [file] = event.target.files;
+  handleImageFile(file);
+  event.target.value = "";
 });
 
-$("#image-picker-dialog").addEventListener("click", (event) => {
-  if (event.target === event.currentTarget) event.currentTarget.close();
+const imageDropZone = $("#image-drop-zone");
+imageDropZone.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  imageDropZone.classList.add("dragging");
 });
-
-$("#choose-train-image").addEventListener("click", () => {
-  state.decoration = "image";
-  selectChocolateMotif("train");
-  document.querySelectorAll("[data-decoration]").forEach((option) => {
-    const selected = option.dataset.decoration === "image";
-    option.classList.toggle("selected", selected);
-    option.setAttribute("aria-pressed", String(selected));
-  });
-  $("#image-fields").hidden = false;
-  $("#text-fields").hidden = true;
-  $("#image-picker-dialog").close();
+imageDropZone.addEventListener("dragleave", () => {
+  imageDropZone.classList.remove("dragging");
 });
-
-$("#choose-flower-image").addEventListener("click", () => {
-  state.decoration = "image";
-  selectChocolateMotif("flower");
-  document.querySelectorAll("[data-decoration]").forEach((option) => {
-    const selected = option.dataset.decoration === "image";
-    option.classList.toggle("selected", selected);
-    option.setAttribute("aria-pressed", String(selected));
-  });
-  $("#image-fields").hidden = false;
-  $("#text-fields").hidden = true;
-  $("#image-picker-dialog").close();
+imageDropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  imageDropZone.classList.remove("dragging");
+  handleImageFile(event.dataTransfer.files[0]);
 });
-
-$("#choose-congratulations-image").addEventListener("click", () => {
-  state.decoration = "text";
-  state.text = "Gratulerer med dagen";
-  $("#decoration-text").value = state.text;
-  releaseUploadedImage();
-  state.imageUrl = null;
-  state.imageMode = "";
-  state.selectedMotif = "";
-  state.ownsImageUrl = false;
-  state.previewBack = false;
-  document.querySelectorAll("[data-decoration]").forEach((option) => {
-    const selected = option.dataset.decoration === "text";
-    option.classList.toggle("selected", selected);
-    option.setAttribute("aria-pressed", String(selected));
-  });
-  $("#image-fields").hidden = true;
-  $("#text-fields").hidden = false;
-  $("#image-picker-dialog").close();
+imageDropZone.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    $("#image-upload").click();
+  }
 });
 
 $("#remove-image").addEventListener("click", () => {
