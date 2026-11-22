@@ -231,7 +231,6 @@ function updatePreview() {
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
   bar.dataset.shape = state.shape;
   bar.dataset.artwork = String(hasPlateArtwork);
-  bar.dataset.imageRelief = String(hasPlateArtwork && !state.previewBack);
   bar.style.setProperty("--bar-light", light);
   bar.style.setProperty("--bar-dark", dark);
   bar.style.setProperty("--piece-light", light);
@@ -299,6 +298,31 @@ function updatePreview() {
 
 function releaseUploadedImage() {
   if (state.ownsImageUrl && state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+}
+
+let previewDatabase;
+
+async function accessSavedPreview(mode, file) {
+  if (!globalThis.indexedDB) return;
+  previewDatabase ??= new Promise((resolve, reject) => {
+    const request = indexedDB.open("sjokoladefabrikken-preview", 1);
+    request.onupgradeneeded = () => request.result.createObjectStore("preview");
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  try {
+    const database = await previewDatabase;
+    return await new Promise((resolve, reject) => {
+      const transaction = database.transaction("preview", mode);
+      const store = transaction.objectStore("preview");
+      const request = mode === "readonly" ? store.get("image")
+        : file ? store.put(file, "image") : store.delete("image");
+      transaction.oncomplete = () => resolve(request.result);
+      transaction.onabort = () => reject(transaction.error);
+    });
+  } catch {
+    // The live preview still works when browser storage is unavailable.
+  }
 }
 
 function buildTextRelief(pixels, w, h) {
@@ -637,16 +661,11 @@ async function createDesignImage() {
   context.font = "24px Arial, sans-serif";
 
   const organicShape = state.shape !== "rektangel";
-  const barWidth = organicShape ? 570 : 990;
+  const hasFrontImage = state.imageMode === "plate" && state.imageUrl && !state.previewBack;
   const barHeight = organicShape ? 560 : 470;
+  const barWidth = organicShape ? 570 : hasFrontImage ? barHeight * 1.8 : 990;
   const barX = (canvas.width - barWidth) / 2;
   const barY = organicShape ? 155 : 190;
-  if (state.imageMode === "plate" && state.imageUrl && !state.previewBack) {
-    const image = new Image();
-    image.src = state.imageUrl;
-    await image.decode();
-    context.drawImage(image, barX, barY, barWidth, barHeight);
-  } else {
   const [light, dark, piece] = chocolates[state.chocolate].colors;
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   const barGradient = context.createLinearGradient(barX, barY, barX + barWidth, barY + barHeight);
@@ -661,7 +680,14 @@ async function createDesignImage() {
   context.save();
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.clip();
-  if (state.previewBack && state.imageUrl && state.imageMode === "back") {
+  if (hasFrontImage) {
+    const relief = $("#bar-relief");
+    // Copy the WebGL canvas in the same frame as the render, before its buffer is cleared.
+    renderRelief();
+    if (!relief.hidden) {
+      context.drawImage(relief, barX + barWidth * 0.03, barY + barHeight * 0.03, barWidth * 0.94, barHeight * 0.94);
+    }
+  } else if (state.previewBack && state.imageUrl && state.imageMode === "back") {
     const image = new Image();
     image.src = state.imageUrl;
     await image.decode();
@@ -700,7 +726,6 @@ async function createDesignImage() {
   context.lineWidth = 7;
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.stroke();
-  }
 
   const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   const sideDescription = state.previewBack
@@ -889,6 +914,10 @@ document.querySelectorAll("[data-decoration]").forEach((button) => {
     state.decoration = button.dataset.decoration;
     state.previewBack = false;
     if (state.decoration !== "image") {
+      state.imageJob++;
+      state.imageProcessing = false;
+      state.sourceFile = null;
+      void accessSavedPreview("readwrite");
       releaseUploadedImage();
       state.imageUrl = null;
       state.imageMode = "";
@@ -978,17 +1007,26 @@ async function prepareImage(file) {
   }
 }
 
-function handleImageFile(file) {
+function handleImageFile(file, save = true) {
   if (!file) return;
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
     showToast("Velg et JPG-, PNG- eller WebP-bilde.");
     return;
   }
   state.decoration = "image";
+  state.selectedMotif = "";
+  state.demoImage = false;
   state.text = "";
   state.demoImageName = file.name;
   $("#decoration-text").value = "";
-  void prepareImage(file);
+  if (save) void accessSavedPreview("readwrite");
+  const preparation = prepareImage(file);
+  const job = state.imageJob;
+  if (save) {
+    void preparation.then(() => {
+      if (state.imageJob === job && state.imageUrl) void accessSavedPreview("readwrite", file);
+    });
+  }
   document.querySelectorAll("[data-decoration]").forEach((option) => {
     const selected = option.dataset.decoration === "image";
     option.classList.toggle("selected", selected);
@@ -1027,6 +1065,8 @@ imageDropZone.addEventListener("keydown", (event) => {
 $("#remove-image").addEventListener("click", () => {
   state.imageJob++;
   state.imageProcessing=false;
+  state.sourceFile = null;
+  void accessSavedPreview("readwrite");
   releaseUploadedImage();
   state.imageUrl = null;
   state.imageMode = "";
@@ -1122,3 +1162,6 @@ $("#severe-allergy").addEventListener("change", readAllergenFilter);
 renderAllergenOptions();
 renderToppings();
 updatePreview();
+void accessSavedPreview("readonly").then((file) => {
+  if (file && state.imageJob === 0 && state.decoration === "none") handleImageFile(file, false);
+});
