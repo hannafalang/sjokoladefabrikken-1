@@ -226,6 +226,7 @@ function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
+  $("#preview-title").textContent = state.plateName.trim() || "Din sjokoladeplate";
   const hasDesign = Boolean(state.imageUrl) || (state.decoration === "text" && state.text.trim());
   const hasToppings = state.selectedToppings.size > 0;
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
@@ -257,10 +258,6 @@ function updatePreview() {
   }
   const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
   bar.dataset.textDecoration = String(showGreeting);
-  const barName = $("#bar-name");
-  const showBarName = Boolean(state.plateName) && !state.previewBack && !showGreeting && !hasPlateArtwork;
-  barName.hidden = !showBarName;
-  barName.textContent = state.plateName;
   const backImage = state.imageMode === "back" ? state.imageUrl : null;
   bar.dataset.backArtwork = String(Boolean(backImage));
   $("#bar-image").hidden = !backImage;
