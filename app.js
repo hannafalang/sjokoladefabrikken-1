@@ -193,7 +193,7 @@ function updatePreview() {
   $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
   $("#bar-artwork").hidden = !hasPlateArtwork;
   if (hasPlateArtwork) {
-    $("#bar-artwork").src = state.imageUrl;
+    $("#bar-artwork").removeAttribute("src");
     $("#bar-artwork").alt = `Forhåndsvisning av sjokoladeplate: ${state.demoImageName}`;
   } else {
     $("#bar-artwork").removeAttribute("src");
@@ -226,6 +226,7 @@ function updatePreview() {
       return piece;
     }));
   $("#bar-toppings").replaceChildren(...pieces);
+  renderPlateImage();
 
   const paidToppings = selected.filter((topping) => topping.paid).length;
   const imageFee = state.imageUrl ? 29 : 0;
@@ -240,6 +241,26 @@ function updatePreview() {
 
 function releaseUploadedImage() {
   if (state.ownsImageUrl && state.imageUrl) URL.revokeObjectURL(state.imageUrl);
+}
+
+function renderPlateImage() {
+  const canvas = $("#bar-relief");
+  if (!canvas) return;
+  const showImage = state.decoration === "image" && state.imageMode === "plate" && state.imageUrl && !state.previewBack;
+  canvas.hidden = !showImage;
+  if (!showImage) return;
+
+  const image = new Image();
+  image.onload = () => {
+    const context = canvas.getContext("2d");
+    if (!context) return;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    const scale = Math.max(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight);
+    const width = image.naturalWidth * scale;
+    const height = image.naturalHeight * scale;
+    context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
+  };
+  image.src = state.imageUrl;
 }
 
 function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageMode = "plate") {
