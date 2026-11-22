@@ -74,6 +74,9 @@ const state = {
   demoImage: false,
   demoImageName: "",
   previewBack: false,
+  decoration: "none",
+  text: "",
+  font: "classic",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -167,7 +170,7 @@ function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
-  const hasDesign = Boolean(state.imageUrl);
+  const hasDesign = Boolean(state.imageUrl) || (state.decoration === "text" && state.text.trim());
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
   if (!hasDesign) state.previewBack = false;
   bar.dataset.shape = state.shape;
@@ -182,7 +185,9 @@ function updatePreview() {
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
   $("#flip-hint").textContent = state.previewBack
     ? `Bakside · ${state.demoImageName || "sjokoladeplaten"}`
-    : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
+    : state.decoration === "text" && state.text.trim()
+      ? "Forside · din tekst"
+      : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
   $("#flip-chocolate").hidden = !hasDesign;
   $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
   $("#bar-artwork").hidden = !hasPlateArtwork;
@@ -193,6 +198,11 @@ function updatePreview() {
     $("#bar-artwork").removeAttribute("src");
     $("#bar-artwork").alt = "";
   }
+  const greeting = $("#bar-greeting");
+  const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
+  greeting.hidden = !showGreeting;
+  greeting.textContent = state.text.trim();
+  greeting.className = `bar-greeting font-${state.font}`;
   const backImage = state.imageMode === "back" ? state.imageUrl : null;
   bar.dataset.backArtwork = String(Boolean(backImage));
   $("#bar-image").hidden = !backImage;
@@ -646,6 +656,44 @@ document.querySelectorAll('input[name="packaging"]').forEach((input) => {
   });
 });
 
+document.querySelectorAll("[data-decoration]").forEach((button) => {
+  button.addEventListener("click", () => {
+    state.decoration = button.dataset.decoration;
+    state.previewBack = false;
+    if (state.decoration !== "image") {
+      releaseUploadedImage();
+      state.imageUrl = null;
+      state.imageMode = "";
+      state.selectedMotif = "";
+      state.ownsImageUrl = false;
+      state.demoImage = false;
+      state.demoImageName = "";
+    }
+    if (state.decoration !== "text") {
+      state.text = "";
+      $("#decoration-text").value = "";
+    }
+    document.querySelectorAll("[data-decoration]").forEach((option) => {
+      const selected = option === button;
+      option.classList.toggle("selected", selected);
+      option.setAttribute("aria-pressed", String(selected));
+    });
+    $("#image-fields").hidden = state.decoration !== "image";
+    $("#text-fields").hidden = state.decoration !== "text";
+    updatePreview();
+  });
+});
+
+$("#decoration-text").addEventListener("input", (event) => {
+  state.text = event.target.value;
+  updatePreview();
+});
+
+$("#decoration-font").addEventListener("change", (event) => {
+  state.font = event.target.value;
+  updatePreview();
+});
+
 $("#topping-filters").addEventListener("click", (event) => {
   const button = event.target.closest("[data-filter]");
   if (!button) return;
@@ -671,22 +719,76 @@ $("#close-image-picker").addEventListener("click", () => {
   $("#image-picker-dialog").close();
 });
 
+$("#image-upload").addEventListener("change", (event) => {
+  const [file] = event.target.files;
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    showToast("Velg et JPG-, PNG- eller WebP-bilde.");
+    event.target.value = "";
+    return;
+  }
+  const url = URL.createObjectURL(file);
+  state.decoration = "image";
+  state.text = "";
+  $("#decoration-text").value = "";
+  setSelectedImage(url, true, file.name, "plate");
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "image";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = false;
+  $("#text-fields").hidden = true;
+  $("#image-picker-dialog").close();
+});
+
 $("#image-picker-dialog").addEventListener("click", (event) => {
   if (event.target === event.currentTarget) event.currentTarget.close();
 });
 
 $("#choose-train-image").addEventListener("click", () => {
+  state.decoration = "image";
   selectChocolateMotif("train");
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "image";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = false;
+  $("#text-fields").hidden = true;
   $("#image-picker-dialog").close();
 });
 
 $("#choose-flower-image").addEventListener("click", () => {
+  state.decoration = "image";
   selectChocolateMotif("flower");
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "image";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = false;
+  $("#text-fields").hidden = true;
   $("#image-picker-dialog").close();
 });
 
 $("#choose-congratulations-image").addEventListener("click", () => {
-  selectChocolateMotif("congratulations");
+  state.decoration = "text";
+  state.text = "Gratulerer med dagen";
+  $("#decoration-text").value = state.text;
+  releaseUploadedImage();
+  state.imageUrl = null;
+  state.imageMode = "";
+  state.selectedMotif = "";
+  state.ownsImageUrl = false;
+  state.previewBack = false;
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "text";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = true;
+  $("#text-fields").hidden = false;
   $("#image-picker-dialog").close();
 });
 
@@ -699,6 +801,16 @@ $("#remove-image").addEventListener("click", () => {
   state.demoImage = false;
   state.demoImageName = "";
   state.previewBack = false;
+  state.decoration = "none";
+  state.text = "";
+  $("#decoration-text").value = "";
+  document.querySelectorAll("[data-decoration]").forEach((option) => {
+    const selected = option.dataset.decoration === "none";
+    option.classList.toggle("selected", selected);
+    option.setAttribute("aria-pressed", String(selected));
+  });
+  $("#image-fields").hidden = true;
+  $("#text-fields").hidden = true;
   $("#bar-image").removeAttribute("src");
   $("#bar-image").alt = "";
   $("#bar-image").hidden = true;

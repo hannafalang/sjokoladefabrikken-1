@@ -167,6 +167,28 @@
               </label>
             </fieldset>
           </div>
+          <div class="decoration-options" role="group" aria-label="Dekor på platen">
+            <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
+            <button type="button" data-decoration="image" aria-pressed="false">Bilde</button>
+            <button type="button" data-decoration="text" aria-pressed="false">Skrift</button>
+          </div>
+          <div id="image-fields" hidden>
+            <p class="privacy-note">Velg blant motivene i bildet-dialogen, eller last opp en egen JPG-, PNG- eller WebP-fil.</p>
+          </div>
+          <div id="text-fields" class="personal-fields" hidden>
+            <div>
+              <label for="decoration-text">Din tekst (maks 40 tegn)</label>
+              <input id="decoration-text" maxlength="40" placeholder="For eksempel: Gratulerer!">
+            </div>
+            <div>
+              <label for="decoration-font">Skrifttype</label>
+              <select id="decoration-font">
+                <option value="classic">Klassisk</option>
+                <option value="handwriting">Håndskrift</option>
+                <option value="modern">Moderne</option>
+              </select>
+            </div>
+          </div>
           <label class="upload-label">Bilde på platen (valgfritt)</label>
           <button type="button" class="upload-control" id="open-image-picker">
             <span class="upload-icon" aria-hidden="true">↑</span>
@@ -188,6 +210,7 @@
             <div class="chocolate-bar__inner">
               <div class="chocolate-face chocolate-face--front">
                 <img class="bar-artwork" id="bar-artwork" alt="" hidden>
+                <div class="bar-greeting" id="bar-greeting" hidden></div>
                 <div class="chocolate-pieces" aria-hidden="true">
                   <span></span><span></span><span></span><span></span><span></span><span></span>
                   <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -292,6 +315,10 @@
           </div>
         </article>
       </div>
+      <label class="upload-control" for="image-upload">
+        <span><strong>Last opp eget bilde</strong><small>JPG, PNG eller WebP · bildet vises på forsiden</small></span>
+        <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
+      </label>
     </div>
   </dialog>
 
