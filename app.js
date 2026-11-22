@@ -446,12 +446,12 @@ function buildImageRelief(pixels, w, h, settings) {
   return {heights:rounded,tones};
 }
 
-function renderRelief() {
+function renderRelief(previewBack = state.previewBack) {
   const canvas=$("#bar-relief");
   const image=$("#bar-image");
   const isText=state.decoration==="text"&&state.text.trim();
   const isImage=state.decoration==="image"&&state.imageUrl&&!state.imageProcessing&&image.complete&&image.naturalWidth;
-  canvas.hidden=state.previewBack||(!isText&&!isImage);
+  canvas.hidden=previewBack||(!isText&&!isImage);
   if(canvas.hidden)return;
   const gl=canvas.getContext("webgl",{alpha:true,antialias:true});
   if(!gl){canvas.hidden=true;showToast("Nettleseren må støtte WebGL for å vise sjokoladerelieffet.");return;}
@@ -645,10 +645,10 @@ function drawBearFace(context, x, y, width, height) {
   context.stroke();
 }
 
-async function createDesignImage() {
+async function createDesignImage(forOrder = false) {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
-  canvas.height = 820;
+  canvas.height = forOrder ? 640 : 820;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Kunne ikke lage et bilde av designet.");
 
@@ -656,16 +656,20 @@ async function createDesignImage() {
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = "#361c1b";
   context.font = "700 48px Georgia, serif";
-  context.fillText("Min sjokoladeplate", 80, 90);
+  if (!forOrder) context.fillText("Min sjokoladeplate", 80, 90);
   context.fillStyle = "#6e5d58";
   context.font = "24px Arial, sans-serif";
 
   const organicShape = state.shape !== "rektangel";
-  const hasFrontImage = state.imageMode === "plate" && state.imageUrl && !state.previewBack;
+  const previewBack = forOrder
+    ? state.imageMode === "back" || (!state.imageUrl && !state.text.trim() && state.selectedToppings.size > 0)
+    : state.previewBack;
+  const hasFrontImage = state.imageMode === "plate" && state.imageUrl && !previewBack;
+  const hasFrontText = state.decoration === "text" && state.text.trim() && !previewBack;
   const barHeight = organicShape ? 560 : 470;
-  const barWidth = organicShape ? 570 : hasFrontImage ? barHeight * 1.8 : 990;
+  const barWidth = organicShape ? 570 : (forOrder || hasFrontImage) ? barHeight * 1.8 : 990;
   const barX = (canvas.width - barWidth) / 2;
-  const barY = organicShape ? 155 : 190;
+  const barY = forOrder ? (canvas.height - barHeight) / 2 : organicShape ? 155 : 190;
   const [light, dark, piece] = chocolates[state.chocolate].colors;
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   const barGradient = context.createLinearGradient(barX, barY, barX + barWidth, barY + barHeight);
@@ -680,20 +684,21 @@ async function createDesignImage() {
   context.save();
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.clip();
-  if (hasFrontImage) {
+  if (hasFrontImage || (forOrder && hasFrontText)) {
     const relief = $("#bar-relief");
     // Copy the WebGL canvas in the same frame as the render, before its buffer is cleared.
-    renderRelief();
+    renderRelief(previewBack);
     if (!relief.hidden) {
       context.drawImage(relief, barX + barWidth * 0.03, barY + barHeight * 0.03, barWidth * 0.94, barHeight * 0.94);
     }
-  } else if (state.previewBack && state.imageUrl && state.imageMode === "back") {
+    if (state.previewBack) relief.hidden = true;
+  } else if (previewBack && state.imageUrl && state.imageMode === "back") {
     const image = new Image();
     image.src = state.imageUrl;
     await image.decode();
     context.drawImage(image, barX, barY, barWidth, barHeight);
   } else {
-    if (!state.previewBack && state.imageMode !== "plate") {
+    if (forOrder ? previewBack : !previewBack && state.imageMode !== "plate") {
       const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
       selectedToppings.forEach((topping, toppingIndex) => {
         for (let index = 0; index < 4; index += 1) {
@@ -726,6 +731,8 @@ async function createDesignImage() {
   context.lineWidth = 7;
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.stroke();
+
+  if (forOrder) return canvas.toDataURL("image/jpeg", 0.9);
 
   const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   const sideDescription = state.previewBack
@@ -1128,8 +1135,11 @@ $("#chat-form").addEventListener("submit", (event) => {
   appendChatMessage(answer, "professor");
 });
 
-$("#order-button").addEventListener("click", (event) => {
+$("#order-button").addEventListener("click", async (event) => {
   event.preventDefault();
+  const button = event.currentTarget;
+  if (button.hasAttribute("aria-busy")) return;
+  button.setAttribute("aria-busy", "true");
   const params = new URLSearchParams({
     chocolate: chocolates[state.chocolate].name,
     toppings: [...state.selectedToppings].join(", "),
@@ -1140,7 +1150,17 @@ $("#order-button").addEventListener("click", (event) => {
     packaging: state.packaging,
     allergens: getAllergens().join(", "),
   });
-  window.location.href = `bestilling.html?${params}`;
+  const query = params.toString();
+  try {
+    sessionStorage.removeItem("chocolate-order-preview");
+    const image = await createDesignImage(true);
+    sessionStorage.setItem("chocolate-order-preview", JSON.stringify({ query, image }));
+  } catch {
+    // The order form can still open if the preview cannot be exported or stored.
+  } finally {
+    button.removeAttribute("aria-busy");
+  }
+  window.location.href = `bestilling.html?${query}`;
 });
 
 $("#share-design").addEventListener("click", openShareDialog);

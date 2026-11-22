@@ -236,10 +236,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .order-page__form label { margin: 4px 0 -4px; font-size: 13px; font-weight: 700; }
 .order-page__form input, .order-page__form select, .order-page__form textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #cfbea9; border-radius: 9px; background: #fffdf9; color: var(--ink); }
 .order-page__form textarea { resize: vertical; }
+.order-page__delivery { min-width: 0; margin: 4px 0 0; padding: 10px 12px 12px; border: 1px solid #cfbea9; border-radius: 9px; }
+.order-page__delivery:not([hidden]) { display: grid; gap: 10px; }
+.order-page__delivery legend { padding: 0 4px; font-size: 14px; font-weight: 700; }
 .order-page__form .order-demo-note { margin-top: 3px; }
 .order-page__form .order-button { margin-top: 5px; }
 .order-page__confirmation { display: grid; gap: 12px; }
 .order-page__confirmation p { margin: 0; line-height: 1.5; }
+.order-page__preview { margin: 0; }
+.order-page__preview figcaption { margin-bottom: 8px; font-size: 14px; font-weight: 700; }
+.order-page__plate { display: block; width: 100%; height: auto; border-radius: 12px; }
 .order-button--link { display: grid; place-items: center; color: white; text-decoration: none; }
 .order-button--link:hover { background: #531b23; }
 

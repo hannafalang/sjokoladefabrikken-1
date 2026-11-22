@@ -45,15 +45,37 @@
           <option value="Henting i Posebyen">Henting i Posebyen</option>
           <option value="Levering">Levering</option>
         </select>
+        <fieldset class="order-page__delivery" id="delivery-fields" hidden disabled>
+          <legend>Leveringsadresse</legend>
+          <label for="delivery-address">Gateadresse og husnummer</label>
+          <input id="delivery-address" name="address" autocomplete="shipping address-line1" required>
+          <label for="delivery-postcode">Postnummer</label>
+          <input id="delivery-postcode" name="postcode" autocomplete="shipping postal-code" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" title="Fire sifre" required>
+          <label for="delivery-city">Poststed</label>
+          <input id="delivery-city" name="city" autocomplete="shipping address-level2" required>
+          <label for="delivery-phone">Telefonnummer for levering</label>
+          <input id="delivery-phone" name="phone" type="tel" autocomplete="shipping tel" required>
+        </fieldset>
         <label for="order-note">Kommentar (valgfritt)</label>
         <textarea id="order-note" name="note" rows="3" placeholder="For eksempel ønsket hentetid"></textarea>
-        <p class="order-demo-note">Dette er en prototype. Bestillingen sendes eller lagres ikke.</p>
+        <label for="payment-method">Betalingsmåte (demo)</label>
+        <select id="payment-method" name="payment" required>
+          <option value="">Velg betalingsmåte</option>
+          <option value="Vipps">Vipps</option>
+          <option value="Klarna">Klarna</option>
+        </select>
+        <p class="order-demo-note">Dette er en demo. Ingen betaling gjennomføres.</p>
         <button type="submit" class="order-button">Bekreft demo-bestilling</button>
       </form>
 
       <section class="order-page__confirmation" id="order-confirmation" aria-live="polite" hidden>
         <h2>Takk, <span id="confirmation-name"></span>!</h2>
         <p id="confirmation-details"></p>
+        <p id="confirmation-delivery" hidden></p>
+        <figure class="order-page__preview" id="confirmation-preview" hidden>
+          <figcaption>Forhåndsvisning av sjokoladeplaten</figcaption>
+          <img class="order-page__plate" id="confirmation-plate" alt="Sjokoladeplaten du designet">
+        </figure>
         <p class="order-demo-note">Dette er bare en demonstrasjon. Bestillingen er ikke sendt eller lagret.</p>
         <a class="order-button order-button--link" href="index.html">Tilbake til designeren</a>
       </section>
