@@ -121,8 +121,6 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .topping-name { font-size: 13px; font-weight: 700; line-height: 1.25; }
 .topping-note { color: var(--muted); font-size: 11px; line-height: 1.25; }
 .selection-count { margin: 11px 0 0; color: var(--muted); font-size: 13px; }
-.allergen-disclaimer { margin: 9px 0 0; padding: 10px 11px; border-left: 3px solid #9a6a37; border-radius: 4px; background: #f7eddf; color: #69564a; font-size: 11px; line-height: 1.5; }
-.allergen-disclaimer strong { color: var(--ink); }
 .personal-card h2 { margin-bottom: 16px; }
 .privacy-note { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 .personal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }

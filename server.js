@@ -4,8 +4,9 @@ const path = require('node:path');
 const files = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
+  ['/bestilling.html', ['bestilling.html', 'text/html; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
-  ...['catalog.js', 'flavor-combinations.js', 'taste-chat.js', 'app.js', 'professor.js'].map(file => [`/${file}`, [file, 'text/javascript; charset=utf-8']]),
+  ...['catalog.js', 'flavor-combinations.js', 'taste-chat.js', 'app.js', 'professor.js', 'bestilling.js'].map(file => [`/${file}`, [file, 'text/javascript; charset=utf-8']]),
 ]);
 function createServer() {
   return http.createServer(async (req, res) => {

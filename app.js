@@ -667,27 +667,7 @@ async function createDesignImage() {
     await image.decode();
     context.drawImage(image, barX, barY, barWidth, barHeight);
   } else {
-    const padding = 22;
-    const gap = 10;
-    const cellWidth = (barWidth - padding * 2 - gap * 5) / 6;
-    const cellHeight = (barHeight - padding * 2 - gap * 3) / 4;
-    for (let row = 0; row < 4; row += 1) {
-      for (let column = 0; column < 6; column += 1) {
-        const x = barX + padding + column * (cellWidth + gap);
-        const y = barY + padding + row * (cellHeight + gap);
-        drawRoundedRect(context, x, y, cellWidth, cellHeight, 13);
-        const cellGradient = context.createLinearGradient(x, y, x + cellWidth, y + cellHeight);
-        cellGradient.addColorStop(0, light);
-        cellGradient.addColorStop(1, piece);
-        context.fillStyle = cellGradient;
-        context.fill();
-        context.strokeStyle = "rgba(64, 35, 27, .3)";
-        context.lineWidth = 2;
-        context.stroke();
-      }
-    }
-
-    if (!state.previewBack) {
+    if (!state.previewBack && state.imageMode !== "plate") {
       const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
       selectedToppings.forEach((topping, toppingIndex) => {
         for (let index = 0; index < 4; index += 1) {
