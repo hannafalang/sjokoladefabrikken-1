@@ -100,6 +100,13 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .upload-control strong, .upload-control small { display: block; }
 .upload-control strong { font-size: 13px; }
 .upload-control small { margin-top: 3px; color: var(--muted); font-size: 11px; }
+.image-drop-zone { display: grid; min-height: 170px; place-items: center; align-content: center; gap: 6px; margin-top: 8px; padding: 18px; border: 2px dashed #bea993; border-radius: 12px; background: #fffdf8; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+.image-drop-zone.dragging { border-color: var(--wine); background: #f3e3df; }
+.image-drop-zone strong { font-size: 16px; }
+.image-drop-zone > span:not(.upload-icon) { color: var(--muted); font-size: 12px; }
+.image-drop-zone label { min-height: 38px; display: grid; place-items: center; padding: 7px 14px; border-radius: 8px; background: var(--wine); color: white; font-size: 13px; font-weight: 700; cursor: pointer; }
+.image-drop-zone small { color: var(--muted); }
+.image-drop-zone input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); clip-path: inset(50%); }
 .remove-image { margin-top: 8px; padding: 5px 0; border: 0; background: transparent; color: var(--wine); font-size: 12px; text-decoration: underline; }
 
 .preview-card { position: sticky; top: 20px; overflow: hidden; }

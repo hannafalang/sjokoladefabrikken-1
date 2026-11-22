@@ -267,6 +267,40 @@ $("#image-upload").addEventListener("change", (event) => {
   void prepareImage(file);
 });
 
+const imageDropZone = $("#image-drop-zone");
+function validateAndPrepareImage(file) {
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    showToast("Velg et JPG-, PNG- eller WebP-bilde.");
+    return;
+  }
+  void prepareImage(file);
+}
+
+imageDropZone.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  imageDropZone.classList.add("dragging");
+});
+imageDropZone.addEventListener("dragleave", () => {
+  imageDropZone.classList.remove("dragging");
+});
+imageDropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  imageDropZone.classList.remove("dragging");
+  validateAndPrepareImage(event.dataTransfer.files[0]);
+});
+imageDropZone.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    $("#image-upload").click();
+  }
+});
+imageDropZone.addEventListener("click", (event) => {
+  if (event.target === event.currentTarget || event.target.classList.contains("upload-icon")) {
+    $("#image-upload").click();
+  }
+});
+
 
 $("#retry-image").addEventListener("click", () => {
   if (state.sourceFile) void prepareImage(state.sourceFile);
