@@ -226,7 +226,6 @@ function updatePreview() {
   const chocolate = chocolates[state.chocolate];
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
-  $("#preview-title").textContent = state.plateName.trim() || "Din sjokoladeplate";
   const hasDesign = Boolean(state.imageUrl) || (state.decoration === "text" && state.text.trim());
   const hasToppings = state.selectedToppings.size > 0;
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
@@ -258,6 +257,10 @@ function updatePreview() {
   }
   const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
   bar.dataset.textDecoration = String(showGreeting);
+  const barName = $("#bar-name");
+  const showBarName = Boolean(state.plateName) && !state.previewBack && !showGreeting && !hasPlateArtwork;
+  barName.hidden = !showBarName;
+  barName.textContent = state.plateName;
   const backImage = state.imageMode === "back" ? state.imageUrl : null;
   bar.dataset.backArtwork = String(Boolean(backImage));
   $("#bar-image").hidden = !backImage;
@@ -275,15 +278,11 @@ function updatePreview() {
     : "Uten topping";
 
   const pieces = selected.flatMap((topping, toppingIndex) =>
-    Array.from({ length: 12 }, (_, index) => {
+    Array.from({ length: 4 }, (_, index) => {
       const piece = createToppingShape(topping, true);
-      const seed = (index + 1) * (toppingIndex + 3) * 17;
-      const left = 7 + ((seed * 29) % 86);
-      const top = 8 + ((seed * 47) % 84);
-      const rotation = (seed * 13) % 360;
-      piece.style.left = `${left}%`;
-      piece.style.top = `${top}%`;
-      piece.style.setProperty("--piece-rotation", `${rotation}deg`);
+      piece.style.left = `${8 + ((index * 23 + toppingIndex * 17) % 82)}%`;
+      piece.style.top = `${8 + ((index * 31 + toppingIndex * 19) % 80)}%`;
+      piece.style.setProperty("--piece-rotation", `${(index * 37 + toppingIndex * 23) % 360}deg`);
       return piece;
     }));
   $("#bar-toppings").replaceChildren(...pieces);
@@ -633,7 +632,7 @@ async function createDesignImage() {
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = "#361c1b";
   context.font = "700 48px Georgia, serif";
-  context.fillText(state.plateName.trim() || "Min sjokoladeplate", 80, 90);
+  context.fillText("Min sjokoladeplate", 80, 90);
   context.fillStyle = "#6e5d58";
   context.font = "24px Arial, sans-serif";
 
@@ -668,13 +667,12 @@ async function createDesignImage() {
     await image.decode();
     context.drawImage(image, barX, barY, barWidth, barHeight);
   } else {
-    if (state.previewBack && state.imageMode !== "plate") {
+    if (!state.previewBack && state.imageMode !== "plate") {
       const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
       selectedToppings.forEach((topping, toppingIndex) => {
-        for (let index = 0; index < 12; index += 1) {
-          const seed = (index + 1) * (toppingIndex + 3) * 17;
-          const x = barX + ((seed * 29) % (barWidth - 70)) + 35;
-          const y = barY + ((seed * 47) % (barHeight - 70)) + 35;
+        for (let index = 0; index < 4; index += 1) {
+          const x = barX + 55 + ((index * 227 + toppingIndex * 173) % (barWidth - 110));
+          const y = barY + 45 + ((index * 131 + toppingIndex * 97) % (barHeight - 90));
           const radius = 16 + ((index + toppingIndex) % 4) * 2;
           context.beginPath();
           context.arc(x, y, radius, 0, Math.PI * 2);
@@ -750,7 +748,6 @@ function getDesignDescription() {
 async function openShareDialog() {
   const dialog = $("#share-dialog");
   const preview = $("#share-image-preview");
-  $("#share-dialog-title").textContent = state.plateName.trim() || "Del sjokoladeplaten";
   const controls = [...dialog.querySelectorAll("button[data-share-target], #share-more, #download-design")];
   if (shareImageUrl) URL.revokeObjectURL(shareImageUrl);
   shareImageFile = null;

@@ -206,6 +206,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .bar-image { position: absolute; z-index: 2; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 15px; background: linear-gradient(145deg, var(--bar-light, #b27b61), var(--bar-dark, #704438)); object-fit: cover; }
 .flip-button { min-height: 36px; padding: 6px 13px; border: 1px solid rgba(106, 37, 45, .35); border-radius: 9px; background: rgba(255, 250, 243, .88); color: var(--wine); font-size: 13px; font-weight: 700; }
 .flip-button:hover { background: white; }
+.bar-name { position: absolute; z-index: 4; right: 8%; bottom: 10%; left: 8%; color: #5a2a1d; font-family: var(--serif); font-size: clamp(11px, 1.5vw, 17px); font-weight: 700; text-align: center; text-shadow: 0 1px 0 #fff6, 1px 2px 1px #35160f55; }
 .preview-card:has(#chocolate-bar[data-image-relief="true"]) .preview-stage {
   perspective: 1000px;
   background:
