@@ -182,6 +182,7 @@ function updatePreview() {
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
   bar.dataset.shape = state.shape;
   bar.dataset.artwork = String(hasPlateArtwork);
+  bar.dataset.imageRelief = String(hasPlateArtwork && !state.previewBack);
   bar.style.setProperty("--bar-light", light);
   bar.style.setProperty("--bar-dark", dark);
   bar.style.setProperty("--piece-light", light);
