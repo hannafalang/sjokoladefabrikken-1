@@ -216,6 +216,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .bar-greeting { position: absolute; z-index: 4; top: 50%; right: 8%; left: 8%; width: auto; transform: translateY(-50%); overflow-wrap: anywhere; color: #5a2a1d; font-family: var(--serif); font-size: clamp(20px, 4vw, 42px); line-height: 1.05; font-weight: 700; text-align: center; text-shadow: 1px 2px 0 #a45f43, 2px 3px 2px #35160f66; white-space: normal; }
 .bar-greeting.font-handwriting { font-family: cursive; font-style: italic; }
 .bar-greeting.font-modern { font-family: var(--sans); font-size: clamp(18px, 3.5vw, 38px); letter-spacing: .05em; text-transform: uppercase; }
+.bar-name { position: absolute; z-index: 4; right: 8%; bottom: 10%; left: 8%; color: #5a2a1d; font-family: var(--serif); font-size: clamp(11px, 1.5vw, 17px); font-weight: 700; text-align: center; text-shadow: 0 1px 0 #fff6, 1px 2px 1px #35160f55; }
 .preview-card:has(#chocolate-bar[data-image-relief="true"]) .preview-stage {
   perspective: 1000px;
   background:

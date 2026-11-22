@@ -129,34 +129,6 @@
           <div class="personal-fields">
             <label for="plate-name">Navn på sjokoladen (valgfritt)</label>
             <input id="plate-name" type="text" maxlength="40" placeholder="For eksempel Romeo's Dream">
-
-            <fieldset class="packaging-options">
-              <legend>Innpakning</legend>
-              <label class="packaging-option selected" data-packaging="standard">
-                <input type="radio" name="packaging" value="standard" checked>
-                <span class="packaging-preview-box packaging-preview-box--standard" aria-hidden="true">
-                  <span></span>
-                </span>
-                <strong>Standard</strong>
-                <small>+0 kr</small>
-              </label>
-              <label class="packaging-option" data-packaging="gave">
-                <input type="radio" name="packaging" value="gave">
-                <span class="packaging-preview-box packaging-preview-box--gift" aria-hidden="true">
-                  <span></span>
-                </span>
-                <strong>Gaveeske</strong>
-                <small>+39 kr</small>
-              </label>
-              <label class="packaging-option" data-packaging="premium">
-                <input type="radio" name="packaging" value="premium">
-                <span class="packaging-preview-box packaging-preview-box--premium" aria-hidden="true">
-                  <span></span>
-                </span>
-                <strong>Premium</strong>
-                <small>+79 kr</small>
-              </label>
-            </fieldset>
           </div>
           <div class="decoration-options" role="group" aria-label="Dekor på platen">
             <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
@@ -189,6 +161,33 @@
           </div>
           <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
           <p class="privacy-note">Bildet vises på forsiden. Toppingene vises på baksiden.</p>
+          <fieldset class="packaging-options">
+            <legend>Innpakning</legend>
+            <label class="packaging-option selected" data-packaging="standard">
+              <input type="radio" name="packaging" value="standard" checked>
+              <span class="packaging-preview-box packaging-preview-box--standard" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Standard</strong>
+              <small>+0 kr</small>
+            </label>
+            <label class="packaging-option" data-packaging="gave">
+              <input type="radio" name="packaging" value="gave">
+              <span class="packaging-preview-box packaging-preview-box--gift" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Gaveeske</strong>
+              <small>+39 kr</small>
+            </label>
+            <label class="packaging-option" data-packaging="premium">
+              <input type="radio" name="packaging" value="premium">
+              <span class="packaging-preview-box packaging-preview-box--premium" aria-hidden="true">
+                <span></span>
+              </span>
+              <strong>Premium</strong>
+              <small>+79 kr</small>
+            </label>
+          </fieldset>
         </section>
       </div>
 
@@ -205,6 +204,7 @@
                 <img class="bar-artwork" id="bar-artwork" alt="" hidden>
                 <canvas id="bar-relief" class="bar-relief" width="1280" height="720" role="img" aria-label="Opphøyd motiv i sjokolade" hidden></canvas>
                 <div class="bar-greeting" id="bar-greeting" hidden></div>
+                <div class="bar-name" id="bar-name" hidden></div>
                 <div class="chocolate-pieces" aria-hidden="true">
                   <span></span><span></span><span></span><span></span><span></span><span></span>
                   <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -240,7 +240,6 @@
         </div>
         <div class="preview-details">
           <strong id="preview-chocolate">Melkesjokolade</strong>
-          <p id="preview-name" hidden></p>
           <p id="preview-toppings">Uten topping</p>
           <p class="allergen-preview" id="preview-allergens">Allergener: Melk, Soya</p>
           <div class="price-row"><span>Eksempelpris</span><strong id="preview-price">179 kr</strong></div>

@@ -261,6 +261,10 @@ function updatePreview() {
   greeting.hidden = !showGreeting;
   greeting.textContent = state.text.trim();
   greeting.className = `bar-greeting font-${state.font}`;
+  const barName = $("#bar-name");
+  const showBarName = Boolean(state.plateName) && !state.previewBack && !showGreeting && !hasPlateArtwork;
+  barName.hidden = !showBarName;
+  barName.textContent = state.plateName;
   const backImage = state.imageMode === "back" ? state.imageUrl : null;
   bar.dataset.backArtwork = String(Boolean(backImage));
   $("#bar-image").hidden = !backImage;
@@ -294,8 +298,6 @@ function updatePreview() {
   const packagingFee = state.packaging === "gave" ? 39 : state.packaging === "premium" ? 79 : 0;
   $("#preview-price").textContent = `${179 + paidToppings * 9 + imageFee + shapeFee + packagingFee} kr`;
   $("#preview-allergens").textContent = `Allergener: ${getAllergens().join(", ")}`;
-  $("#preview-name").textContent = state.plateName ? `Navn: ${state.plateName}` : "";
-  $("#preview-name").hidden = !state.plateName;
   updatePackagingPreview();
 }
 
@@ -637,7 +639,6 @@ async function createDesignImage() {
   context.fillText("Min sjokoladeplate", 80, 90);
   context.fillStyle = "#6e5d58";
   context.font = "24px Arial, sans-serif";
-  context.fillText(`${chocolates[state.chocolate].name}${state.plateName ? ` · ${state.plateName}` : ""}`, 82, 132);
 
   const organicShape = state.shape !== "rektangel";
   const barWidth = organicShape ? 570 : 990;
