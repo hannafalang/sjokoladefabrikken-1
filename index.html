@@ -98,6 +98,14 @@
             <p class="demo-note">Smaksforslagene er enkle demo-forslag, ikke KI-genererte.</p>
           </section>
 
+          <details class="allergen-filter">
+            <summary>Allergenfilter</summary>
+            <p>Unngå valgte allergener. Ukjente opplysninger godkjennes ikke av filteret.</p>
+            <div id="allergen-options" class="allergen-options" role="group" aria-label="Allergener du vil unngå"></div>
+            <label class="severe-allergy"><input id="severe-allergy" type="checkbox"> Jeg må ta hensyn til alvorlig allergi</label>
+          </details>
+          <p class="allergen-status" id="allergen-filter-status" role="status"></p>
+
           <label class="search-label" for="topping-search">Søk etter smågodt</label>
           <input class="search-input" id="topping-search" type="search" placeholder="For eksempel lakris">
           <div class="filters" id="topping-filters" role="group" aria-label="Filtrer smågodt">
@@ -121,23 +129,6 @@
           <div class="personal-fields">
             <label for="plate-name">Navn på sjokoladen (valgfritt)</label>
             <input id="plate-name" type="text" maxlength="40" placeholder="For eksempel Romeo's Dream">
-
-            <label for="plate-occasion">Anledning</label>
-            <select id="plate-occasion">
-              <option value="">Velg anledning</option>
-              <option value="bursdag">Bursdag</option>
-              <option value="bryllup">Bryllup</option>
-              <option value="firma">Firma eller lansering</option>
-              <option value="gave">Gave</option>
-              <option value="annet">Annet</option>
-            </select>
-
-            <label for="plate-shape">Plateform</label>
-            <select id="plate-shape">
-              <option value="rektangel">Rektangelform (+0 kr)</option>
-              <option value="hjerte">Hjerteform (+19 kr)</option>
-              <option value="bamse">Bamseform (+19 kr)</option>
-            </select>
 
             <fieldset class="packaging-options">
               <legend>Innpakning</legend>

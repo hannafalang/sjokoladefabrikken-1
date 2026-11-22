@@ -67,6 +67,7 @@ const state = {
   plateName: "",
   occasion: "",
   packaging: "standard",
+  allergenFilter: { excluded: [], severe: false },
   imageUrl: null,
   imageMode: "",
   imageProcessing: false,
@@ -90,6 +91,16 @@ const toppingGrid = $("#topping-options");
 let toastTimeout;
 let shareImageUrl;
 let shareImageFile;
+
+const allergenOptions = [
+  { id: "gluten", name: "Glutenholdige kornslag", matches: ["Hvete", "Gluten"] },
+  { id: "milk", name: "Melk", matches: ["Melk"] },
+  { id: "eggs", name: "Egg", matches: ["Egg"] },
+  { id: "soy", name: "Soya", matches: ["Soya"] },
+  { id: "peanuts", name: "Peanøtter", matches: ["Peanøtter"] },
+  { id: "tree-nuts", name: "Nøtter", matches: ["Nøtter", "Mandler", "Hasselnøtter"] },
+  { id: "sesame", name: "Sesam", matches: ["Sesam"] },
+];
 
 function createToppingShape(topping, preview = false) {
   const shape = document.createElement("span");
@@ -116,7 +127,7 @@ function renderToppings() {
     button.type = "button";
     button.className = `topping-option${selected ? " selected" : ""}`;
     button.setAttribute("aria-pressed", String(selected));
-    button.disabled = !selected && state.selectedToppings.size >= 6;
+    button.disabled = (!selected && state.selectedToppings.size >= 6) || !toppingAllowedByFilter(topping);
 
     const name = document.createElement("span");
     name.className = "topping-name";
@@ -157,6 +168,44 @@ function getAllergens() {
   const allergens = new Set(["Melk", "Soya"]);
   selected.forEach((topping) => (topping.allergens || []).forEach((allergen) => allergens.add(allergen)));
   return [...allergens].sort((a, b) => a.localeCompare(b, "nb"));
+}
+
+function toppingAllowedByFilter(topping) {
+  if (state.allergenFilter.severe) return false;
+  if (!state.allergenFilter.excluded.length) return true;
+  return !state.allergenFilter.excluded.some((allergenId) => {
+    const allergen = allergenOptions.find((option) => option.id === allergenId);
+    return allergen?.matches.some((name) => (topping.allergens || []).includes(name));
+  });
+}
+
+function renderAllergenOptions() {
+  $("#allergen-options").replaceChildren(...allergenOptions.map((allergen) => {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = allergen.id;
+    input.checked = state.allergenFilter.excluded.includes(allergen.id);
+    input.addEventListener("change", readAllergenFilter);
+    const text = document.createElement("span");
+    text.textContent = allergen.name;
+    label.append(input, text);
+    return label;
+  }));
+  $("#severe-allergy").checked = state.allergenFilter.severe;
+  $("#allergen-filter-status").textContent = state.allergenFilter.excluded.length || state.allergenFilter.severe
+    ? "Filter aktivt. Allergerisk kontroll må fortsatt avklares med leverandøren."
+    : "Ingen allergener er valgt.";
+}
+
+function readAllergenFilter() {
+  state.allergenFilter = {
+    excluded: [...document.querySelectorAll("#allergen-options input:checked")].map((input) => input.value),
+    severe: $("#severe-allergy").checked,
+  };
+  renderAllergenOptions();
+  renderToppings();
+  updatePreview();
 }
 
 function updatePackagingPreview() {
@@ -218,7 +267,7 @@ function updatePreview() {
   if (backImage) {
     if ($("#bar-image").src !== backImage) $("#bar-image").src = backImage;
   } else if (state.imageMode !== "plate") {
-    $("#bar-image").removeAttribute("src");
+    if (typeof $("#bar-image").removeAttribute === "function") $("#bar-image").removeAttribute("src");
   }
   $("#bar-image").alt = backImage ? `${state.demoImageName} på baksiden av ${chocolate.name.toLocaleLowerCase("nb")}` : "";
   $("#preview-chocolate").textContent = chocolate.name;
@@ -462,7 +511,7 @@ function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageM
   state.previewBack = imageMode === "back";
   if (imageMode === "plate" || imageMode === "back") {
     state.shape = "rektangel";
-    $("#plate-shape").value = state.shape;
+    if ($("#plate-shape")) $("#plate-shape").value = state.shape;
   }
   $("#bar-image").src = url;
   $("#bar-image").alt = imageMode === "back" ? "Valgt bilde på baksiden av sjokoladeplaten" : "";
@@ -851,16 +900,6 @@ $("#plate-name").addEventListener("input", (event) => {
   updatePreview();
 });
 
-$("#plate-occasion").addEventListener("change", (event) => {
-  state.occasion = event.target.value;
-});
-
-$("#plate-shape").addEventListener("change", (event) => {
-  state.shape = event.target.value;
-  $("#chocolate-bar").dataset.shape = state.shape;
-  updatePreview();
-});
-
 document.querySelectorAll('input[name="packaging"]').forEach((input) => {
   input.addEventListener("change", (event) => {
     state.packaging = event.target.value;
@@ -1080,9 +1119,7 @@ $("#order-button").addEventListener("click", (event) => {
     image: state.imageUrl ? (state.demoImageName || "eget bilde") : "",
     imagePosition: state.imageMode === "plate" ? "på forsiden" : "på baksiden",
     price: $("#preview-price").textContent,
-    shape: state.shape,
     name: state.plateName,
-    occasion: state.occasion,
     packaging: state.packaging,
     allergens: getAllergens().join(", "),
   });
@@ -1104,5 +1141,7 @@ document.querySelectorAll("[data-share-target]").forEach((button) => {
 });
 $("#share-more").addEventListener("click", shareWithOtherApps);
 
+$("#severe-allergy").addEventListener("change", readAllergenFilter);
+renderAllergenOptions();
 renderToppings();
 updatePreview();
