@@ -22,6 +22,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .site-header { display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: 20px; padding: 14px max(4vw, 24px); border-bottom: 1px solid var(--border); background: #fff9f0; }
 .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); font-size: 17px; font-weight: 700; text-decoration: none; }
 .brand__pig { width: 38px; height: 40px; flex: 0 0 auto; object-fit: contain; }
+.brand__logo { display: block; width: min(260px, 44vw); height: 52px; object-fit: contain; object-position: left center; }
 .header-note { color: var(--muted); font-size: 13px; }
 .page { width: min(1440px, 100%); margin: 0 auto; padding: 50px max(4vw, 24px) 80px; }
 .intro { margin-bottom: 30px; }
@@ -345,6 +346,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .site-header { min-height: 62px; padding: 10px 17px; }
   .brand { gap: 8px; font-size: 13px; }
   .brand__pig { width: 32px; height: 34px; }
+  .brand__logo { width: 210px; height: 46px; }
   .header-note { display: none; }
   .page { padding: 30px 14px 50px; }
   .intro { margin-bottom: 20px; }
