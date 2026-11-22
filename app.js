@@ -132,6 +132,7 @@ function toggleTopping(name) {
     state.selectedToppings.delete(name);
   } else if (state.selectedToppings.size < 6) {
     state.selectedToppings.add(name);
+    state.previewBack = true;
   } else {
     showToast("Du kan velge opptil 6 typer smågodt.");
     return;
@@ -171,8 +172,9 @@ function updatePreview() {
   const [light, dark, piece] = chocolate.colors;
   const bar = $("#chocolate-bar");
   const hasDesign = Boolean(state.imageUrl) || (state.decoration === "text" && state.text.trim());
+  const hasToppings = state.selectedToppings.size > 0;
   const hasPlateArtwork = Boolean(state.imageUrl && state.imageMode === "plate");
-  if (!hasDesign) state.previewBack = false;
+  if (!hasDesign && !hasToppings) state.previewBack = false;
   bar.dataset.shape = state.shape;
   bar.dataset.artwork = String(hasPlateArtwork);
   bar.style.setProperty("--bar-light", light);
@@ -184,11 +186,11 @@ function updatePreview() {
   $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
   $("#flip-hint").textContent = state.previewBack
-    ? `Bakside · ${state.demoImageName || "sjokoladeplaten"}`
+    ? `Bakside · ${hasToppings ? "toppingene" : state.demoImageName || "sjokoladeplaten"}`
     : state.decoration === "text" && state.text.trim()
       ? "Forside · din tekst"
       : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside · toppingene";
-  $("#flip-chocolate").hidden = !hasDesign;
+  $("#flip-chocolate").hidden = !(hasDesign || hasToppings);
   $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
   $("#bar-artwork").hidden = !hasPlateArtwork;
   if (hasPlateArtwork) {
@@ -200,6 +202,7 @@ function updatePreview() {
   }
   const greeting = $("#bar-greeting");
   const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
+  bar.dataset.textDecoration = String(showGreeting);
   greeting.hidden = !showGreeting;
   greeting.textContent = state.text.trim();
   greeting.className = `bar-greeting font-${state.font}`;
@@ -261,7 +264,7 @@ function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageM
 
 function selectChocolateMotif(motif) {
   state.selectedMotif = motif;
-  setSelectedImage(chocolateMotifs[state.chocolate][motif], false, motifNames[motif], "back");
+  setSelectedImage(chocolateMotifs[state.chocolate][motif], false, motifNames[motif], "plate");
 }
 
 function showToast(message) {
