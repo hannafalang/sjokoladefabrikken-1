@@ -255,12 +255,8 @@ function updatePreview() {
     if (typeof $("#bar-artwork").removeAttribute === "function") $("#bar-artwork").removeAttribute("src");
     $("#bar-artwork").alt = "";
   }
-  const greeting = $("#bar-greeting");
   const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
   bar.dataset.textDecoration = String(showGreeting);
-  greeting.hidden = !showGreeting;
-  greeting.textContent = state.text.trim();
-  greeting.className = `bar-greeting font-${state.font}`;
   const barName = $("#bar-name");
   const showBarName = Boolean(state.plateName) && !state.previewBack && !showGreeting && !hasPlateArtwork;
   barName.hidden = !showBarName;
