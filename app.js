@@ -5,33 +5,10 @@ const chocolates = {
   pink: { name: "Rosa sjokolade", colors: ["#f19cab", "#a23f4c", "#ffb0bd"] },
 };
 
-const chocolateMotifs = {
-  dark: {
-    flower: "./assets/dark-blomst.png",
-    train: "./assets/dark-tog.png",
-    congratulations: "./assets/dark-gratulerer.png",
-  },
-  milk: {
-    flower: "./assets/milk-blomst.png",
-    train: "./assets/milk-tog.png",
-    congratulations: "./assets/milk-gratulerer.png",
-  },
-  white: {
-    flower: "./assets/white-blomst.png",
-    train: "./assets/white-tog.png",
-    congratulations: "./assets/white-gratulerer.png",
-  },
-  pink: {
-    flower: "./assets/pink-blomst.png",
-    train: "./assets/pink-tog.png",
-    congratulations: "./assets/pink-gratulerer.png",
-  },
-};
-
-const motifNames = {
-  flower: "Blomsterrelieff",
-  train: "Sjokoladetog",
-  congratulations: "Gratulerer med dagen",
+const greetingFonts = {
+  classic: '700 100px Arial, sans-serif',
+  elegant: 'italic 600 100px "Palatino Linotype", Georgia, serif',
+  handwriting: 'italic 600 100px "Segoe Script", "Brush Script MT", cursive',
 };
 
 const toppings = [
@@ -76,9 +53,7 @@ const state = {
   focusX: 0.5,
   focusY: 0.5,
   backgroundSoftness: 0.8,
-  selectedMotif: "",
   ownsImageUrl: false,
-  demoImage: false,
   demoImageName: "",
   previewBack: true,
   decoration: "none",
@@ -271,12 +246,6 @@ function updatePreview() {
   }
   $("#bar-image").alt = backImage ? `${state.demoImageName} på baksiden av ${chocolate.name.toLocaleLowerCase("nb")}` : "";
   $("#preview-chocolate").textContent = chocolate.name;
-  document.querySelectorAll("[data-motif]").forEach((button) => {
-    const selected = state.selectedMotif === button.dataset.motif;
-    button.classList.toggle("selected", selected);
-    button.setAttribute("aria-pressed", String(selected));
-  });
-
   const selected = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   $("#preview-toppings").textContent = selected.length
     ? selected.map((topping) => topping.name).join(" · ")
@@ -505,10 +474,10 @@ function renderRelief(previewBack = state.previewBack) {
       imageWidth=image.naturalWidth*scale;imageHeight=image.naturalHeight*scale;
       ctx.drawImage(image,(w-imageWidth)/2,(h-imageHeight)/2,imageWidth,imageHeight);
     }else{
-      const family={handwriting:"cursive",modern:"sans-serif",typewriter:"monospace"}[state.font] || "serif";
+      const font = greetingFonts[state.font] || greetingFonts.classic;
       ctx.fillStyle="white";ctx.textAlign="center";ctx.textBaseline="middle";
       let size=100;
-      do{ctx.font=`bold ${size--}px ${family}`}while(ctx.measureText(state.text).width>w-18&&size>5);
+      do{ctx.font=font.replace("100px",`${size--}px`)}while(ctx.measureText(state.text).width>w-18&&size>5);
       ctx.fillText(state.text,w/2,h/2);
     }
     const pixels=ctx.getImageData(0,0,w,h).data;
@@ -542,34 +511,6 @@ function renderRelief(previewBack = state.previewBack) {
   const color=chocolates[state.chocolate].colors[0];
   gl.uniform3f(gl.getUniformLocation(canvas.reliefProgram,"chocolate"),...[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255));
   gl.drawArrays(gl.TRIANGLES,0,canvas.reliefVertexCount);
-}
-
-function setSelectedImage(url, ownsObjectUrl = false, demoImageName = "", imageMode = "plate") {
-  releaseUploadedImage();
-  state.imageUrl = url;
-  state.imageMode = imageMode;
-  state.ownsImageUrl = ownsObjectUrl;
-  state.demoImage = Boolean(demoImageName);
-  state.demoImageName = demoImageName;
-  state.previewBack = imageMode === "back";
-  if (imageMode === "plate" || imageMode === "back") {
-    state.shape = "rektangel";
-    if ($("#plate-shape")) $("#plate-shape").value = state.shape;
-  }
-  $("#bar-image").src = url;
-  $("#bar-image").alt = imageMode === "back" ? "Valgt bilde på baksiden av sjokoladeplaten" : "";
-  $("#bar-image").hidden = imageMode !== "back";
-  $("#remove-image").hidden = false;
-  updatePreview();
-}
-
-function selectChocolateMotif(motif) {
-  state.imageJob++;
-  state.imageProcessing = false;
-  state.sourceFile = null;
-  void accessSavedPreview("readwrite");
-  state.selectedMotif = motif;
-  setSelectedImage(chocolateMotifs[state.chocolate][motif], false, motifNames[motif], "plate");
 }
 
 function showToast(message) {
@@ -692,7 +633,7 @@ async function createDesignImage(forOrder = false) {
   const hasFrontImage = state.imageMode === "plate" && state.imageUrl && !previewBack;
   const hasFrontText = state.decoration === "text" && state.text.trim() && !previewBack;
   const barHeight = organicShape ? 560 : 470;
-  const barWidth = organicShape ? 570 : (forOrder || hasFrontImage) ? barHeight * 1.8 : 990;
+  const barWidth = organicShape ? 570 : (forOrder || hasFrontImage || hasFrontText) ? barHeight * 1.8 : 990;
   const barX = (canvas.width - barWidth) / 2;
   const barY = forOrder ? (canvas.height - barHeight) / 2 : organicShape ? 155 : 190;
   const [light, dark, piece] = chocolates[state.chocolate].colors;
@@ -709,7 +650,7 @@ async function createDesignImage(forOrder = false) {
   context.save();
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.clip();
-  if (hasFrontImage || (forOrder && hasFrontText)) {
+  if (hasFrontImage || hasFrontText) {
     const relief = $("#bar-relief");
     // Copy the WebGL canvas in the same frame as the render, before its buffer is cleared.
     try {
@@ -1019,10 +960,6 @@ function recognizesIngredientList(text, ideas) {
 document.querySelectorAll("[data-chocolate]").forEach((button) => {
   button.addEventListener("click", () => {
     state.chocolate = button.dataset.chocolate;
-    if (state.selectedMotif) {
-      state.imageUrl = chocolateMotifs[state.chocolate][state.selectedMotif];
-      state.demoImageName = motifNames[state.selectedMotif];
-    }
     document.querySelectorAll("[data-chocolate]").forEach((option) => {
       const selected = option === button;
       option.classList.toggle("selected", selected);
@@ -1056,9 +993,7 @@ document.querySelectorAll("[data-decoration]").forEach((button) => {
       releaseUploadedImage();
       state.imageUrl = null;
       state.imageMode = "";
-      state.selectedMotif = "";
       state.ownsImageUrl = false;
-      state.demoImage = false;
       state.demoImageName = "";
     }
     if (state.decoration !== "text") {
@@ -1083,11 +1018,8 @@ $("#decoration-text").addEventListener("input", (event) => {
 
 $("#decoration-font").addEventListener("change", (event) => {
   state.font = event.target.value;
+  $("#decoration-text").style.font = greetingFonts[state.font].replace("100px", "16px");
   updatePreview();
-});
-
-document.querySelectorAll("[data-motif]").forEach((button) => {
-  button.addEventListener("click", () => selectChocolateMotif(button.dataset.motif));
 });
 
 document.querySelectorAll("[data-symbol]").forEach((button) => {
@@ -1165,8 +1097,6 @@ function handleImageFile(file, save = true) {
     return;
   }
   state.decoration = "image";
-  state.selectedMotif = "";
-  state.demoImage = false;
   state.text = "";
   state.demoImageName = file.name;
   $("#decoration-text").value = "";
@@ -1221,9 +1151,7 @@ $("#remove-image").addEventListener("click", () => {
   releaseUploadedImage();
   state.imageUrl = null;
   state.imageMode = "";
-  state.selectedMotif = "";
   state.ownsImageUrl = false;
-  state.demoImage = false;
   state.demoImageName = "";
   state.previewBack = false;
   state.decoration = "none";

@@ -133,7 +133,7 @@
           </div>
           <div class="decoration-options" role="group" aria-label="Dekor på platen">
             <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
-            <button type="button" data-decoration="image" aria-pressed="false">Eget bilde eller motiv</button>
+            <button type="button" data-decoration="image" aria-pressed="false">Last opp eget bilde</button>
             <button type="button" data-decoration="text" aria-pressed="false">Skriv en hilsen</button>
           </div>
           <div id="image-fields" hidden>
@@ -146,12 +146,6 @@
               <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
             </div>
             <p class="privacy-note">Bildet lagres i nettleseren til du fjerner eller bytter det.</p>
-            <p class="field-help">Eller velg et eksempelmotiv</p>
-            <div class="decoration-options" role="group" aria-label="Eksempelmotiver">
-              <button type="button" data-motif="flower" aria-pressed="false">Blomster</button>
-              <button type="button" data-motif="train" aria-pressed="false">Tog</button>
-              <button type="button" data-motif="congratulations" aria-pressed="false">Gratulerer</button>
-            </div>
           </div>
           <div id="text-fields" class="personal-fields" hidden>
             <div>
@@ -161,10 +155,9 @@
             <div>
               <label for="decoration-font">Skrifttype</label>
               <select id="decoration-font">
-                <option value="classic">Klassisk</option>
-                <option value="handwriting">Håndskrift</option>
-                <option value="modern">Moderne</option>
-                <option value="typewriter">Skrivemaskin</option>
+                <option value="classic">Vanlig</option>
+                <option value="elegant">Elegant kursiv</option>
+                <option value="handwriting">Håndskrevet kursiv</option>
               </select>
             </div>
             <div class="decoration-options" role="group" aria-label="Legg til symbol i hilsenen">
