@@ -8,7 +8,7 @@ const source = fs.readFileSync(path.join(__dirname, '../app.js'), 'utf8');
 function heightField(pixels, w, h, isText = false, options = {}) {
   const context = { pixels, w, h, state: { focusX: 0.5, focusY: 0.5, backgroundSoftness: 0.8, ...options } };
   vm.createContext(context);
-  vm.runInContext(source.slice(source.indexOf('function buildTextRelief('),source.indexOf('function renderRelief()')),context);
+  vm.runInContext(source.slice(source.indexOf('function buildTextRelief('),source.indexOf('function renderRelief(')),context);
   vm.runInContext(isText ? 'this.result=buildTextRelief(pixels,w,h).heights' : 'this.result=buildImageRelief(pixels,w,h,state).heights',context);
   return context.result;
 }

@@ -13,8 +13,14 @@ const packagingLabels = { standard: "Standardemballasje", gave: "Gaveinnpakning"
 document.querySelector("#order-design").textContent = `${chocolate} · ${toppings}`;
 document.querySelector("#order-details").textContent =
   `${plateName ? `Navn: ${plateName} · ` : ""}${packagingLabels[packaging]}`;
-document.querySelector("#order-allergens").textContent = `Allergener: ${allergens}`;
+document.querySelector("#order-allergens").textContent = `Oppgitte allergener for hele platen: ${allergens}`;
 document.querySelector("#order-price").textContent = price;
+const breakdown = params.get("breakdown");
+if (breakdown) {
+  const priceBreakdown = document.querySelector("#order-price-breakdown");
+  priceBreakdown.textContent = breakdown;
+  priceBreakdown.hidden = false;
+}
 if (image) {
   const imageSummary = document.querySelector("#order-image");
   imageSummary.textContent = `${image} ${imagePosition}`;

@@ -33,7 +33,7 @@
       <span class="journey-arrow" aria-hidden="true">→</span>
       <a href="#personal-title"><span>3</span> Design</a>
       <span class="journey-arrow" aria-hidden="true">→</span>
-      <a href="#preview-title"><span>4</span> Bestill</a>
+      <a href="#order-button"><span>4</span> Bestill</a>
     </nav>
 
     <div class="designer-layout">
@@ -44,30 +44,36 @@
             <button type="button" class="chocolate-option selected" data-chocolate="milk" aria-pressed="true">
               <span class="chocolate-swatch swatch-milk" aria-hidden="true"></span>
               <span>Melkesjokolade</span>
+              <small class="product-allergens">Oppgitt: melk, soya</small>
             </button>
             <button type="button" class="chocolate-option" data-chocolate="dark" aria-pressed="false">
               <span class="chocolate-swatch swatch-dark" aria-hidden="true"></span>
               <span>Mørk sjokolade</span>
+              <small class="product-allergens">Oppgitt: melk, soya</small>
             </button>
             <button type="button" class="chocolate-option" data-chocolate="white" aria-pressed="false">
               <span class="chocolate-swatch swatch-white" aria-hidden="true"></span>
               <span>Hvit sjokolade</span>
+              <small class="product-allergens">Oppgitt: melk, soya</small>
             </button>
             <button type="button" class="chocolate-option" data-chocolate="pink" aria-pressed="false">
               <span class="chocolate-swatch swatch-pink" aria-hidden="true"></span>
               <span>Rosa sjokolade</span>
+              <small class="product-allergens">Oppgitt: melk, soya</small>
             </button>
           </div>
-          <p class="base-price-note">Eksempelpris fra 179 kr · opptil 6 typer smågodt</p>
+          <p class="base-price-note">Fra 179 kr · Vekt i gram er ikke fastsatt</p>
+          <p class="allergen-disclaimer">Allergenopplysningene i prototypen er foreløpige. Avklar ingredienser og spor med leverandøren.</p>
         </section>
 
         <section class="builder-card toppings-card" aria-labelledby="toppings-title">
           <div class="section-title-row">
-            <h2 id="toppings-title">2. Velg smågodt</h2>
+            <h2 id="toppings-title">2. Velg topping</h2>
             <button class="professor-toggle" id="professor-toggle" type="button" aria-expanded="false" aria-controls="professor-panel">
               <span aria-hidden="true">✦</span> Smaksprofessoren
             </button>
           </div>
+          <p class="field-help">Velg opptil seks toppinger til sjokoladeplaten. Smaksprofessoren kan foreslå kombinasjoner ut fra det du liker.</p>
 
           <section class="professor-panel" id="professor-panel" hidden aria-labelledby="professor-title">
             <div class="professor-panel__header">
@@ -80,12 +86,8 @@
             <div class="chat-log" id="chat-log" role="log" aria-live="polite">
               <div class="chat-message chat-message--professor">
                 <strong>Smaksprofessoren</strong>
-                <p>Hei! Leter du etter en gave, en favorittsmak eller noe helt nytt?</p>
+                <p>Hvilke smaker vil du kombinere? Prøv «syrlig og søtt med hvit sjokolade».</p>
               </div>
-            </div>
-            <div class="suggestion-buttons">
-              <button type="button" data-prompt="gave">Jeg leter etter en gave</button>
-              <button type="button" data-prompt="nytt">Jeg vil prøve noe nytt</button>
             </div>
             <form class="chat-form" id="chat-form">
               <label for="chat-input">Melding</label>
@@ -105,9 +107,10 @@
           </details>
           <p class="allergen-status" id="allergen-filter-status" role="status"></p>
 
-          <label class="search-label" for="topping-search">Søk etter smågodt</label>
+          <label class="search-label" for="topping-search">Søk etter topping</label>
           <input class="search-input" id="topping-search" type="search" placeholder="For eksempel lakris">
-          <div class="filters" id="topping-filters" role="group" aria-label="Filtrer smågodt">
+          <p class="field-help" id="topping-results" role="status"></p>
+          <div class="filters" id="topping-filters" role="group" aria-label="Smakskategorier">
             <button type="button" class="filter-chip selected" data-filter="Alle" aria-pressed="true">Alle</button>
             <button type="button" class="filter-chip" data-filter="Søtt" aria-pressed="false">Søtt</button>
             <button type="button" class="filter-chip" data-filter="Syrlig" aria-pressed="false">Syrlig</button>
@@ -130,8 +133,8 @@
           </div>
           <div class="decoration-options" role="group" aria-label="Dekor på platen">
             <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
-            <button type="button" data-decoration="image" aria-pressed="false">Bilde</button>
-            <button type="button" data-decoration="text" aria-pressed="false">Skrift</button>
+            <button type="button" data-decoration="image" aria-pressed="false">Eget bilde eller motiv</button>
+            <button type="button" data-decoration="text" aria-pressed="false">Skriv en hilsen</button>
           </div>
           <div id="image-fields" hidden>
             <div class="image-drop-zone" id="image-drop-zone" tabindex="0" role="button" aria-label="Dra inn eller velg bilde">
@@ -143,6 +146,12 @@
               <input id="image-upload" type="file" accept="image/jpeg,image/png,image/webp">
             </div>
             <p class="privacy-note">Bildet lagres i nettleseren til du fjerner eller bytter det.</p>
+            <p class="field-help">Eller velg et eksempelmotiv</p>
+            <div class="decoration-options" role="group" aria-label="Eksempelmotiver">
+              <button type="button" data-motif="flower" aria-pressed="false">Blomster</button>
+              <button type="button" data-motif="train" aria-pressed="false">Tog</button>
+              <button type="button" data-motif="congratulations" aria-pressed="false">Gratulerer</button>
+            </div>
           </div>
           <div id="text-fields" class="personal-fields" hidden>
             <div>
@@ -155,7 +164,12 @@
                 <option value="classic">Klassisk</option>
                 <option value="handwriting">Håndskrift</option>
                 <option value="modern">Moderne</option>
+                <option value="typewriter">Skrivemaskin</option>
               </select>
+            </div>
+            <div class="decoration-options" role="group" aria-label="Legg til symbol i hilsenen">
+              <button type="button" data-symbol="♥" aria-label="Legg til hjerte">♥</button>
+              <button type="button" data-symbol="★" aria-label="Legg til stjerne">★</button>
             </div>
           </div>
           <button type="button" class="remove-image" id="remove-image" hidden>Fjern bildet</button>
@@ -227,11 +241,11 @@
         <div class="preview-details">
           <strong id="preview-chocolate">Melkesjokolade</strong>
           <p id="preview-toppings">Uten topping</p>
-          <p class="allergen-preview" id="preview-allergens">Allergener: Melk, Soya</p>
-          <div class="price-row"><span>Eksempelpris</span><strong id="preview-price">179 kr</strong></div>
+          <p class="allergen-preview" id="preview-allergens">Oppgitte allergener for hele platen: Melk, Soya</p>
+          <p class="price-note" id="price-breakdown">Plate 179 kr</p>
+          <div class="price-row"><span>Totalpris (demo)</span><strong id="preview-price">179 kr</strong></div>
           <a class="order-button order-button--link" id="order-button" href="bestilling.html">Bestill <span aria-hidden="true">→</span></a>
           <button type="button" class="share-button" id="share-design">Del bilde</button>
-          <p class="price-note">Eksempelpriser: base 179 kr · topping +9 kr · bilde +29 kr · form +19 kr · innpakning +39/79 kr</p>
           <p class="order-disclaimer">Prototype – bestillingen lagres eller sendes ikke.</p>
         </div>
       </aside>
