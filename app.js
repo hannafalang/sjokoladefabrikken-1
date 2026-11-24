@@ -223,13 +223,9 @@ function updatePreview() {
   bar.setAttribute("aria-label", `${chocolate.name}plate i ${state.shape}form, ${state.previewBack ? "bakside" : "forside"}`);
   $(".chocolate-face--front").setAttribute("aria-hidden", String(state.previewBack));
   $(".chocolate-face--back").setAttribute("aria-hidden", String(!state.previewBack));
-  $("#flip-hint").textContent = state.previewBack
-    ? hasToppings ? "Bakside · toppingene" : "Bakside · uten topping"
-    : state.decoration === "text" && state.text.trim()
-      ? "Forside · din tekst"
-      : hasPlateArtwork ? `Forside · ${state.demoImageName}` : "Forside";
+  $("#flip-hint").textContent = `${chocolate.name} · ${state.previewBack ? "Bakside" : "Forside"}`;
   $("#flip-chocolate").hidden = !(hasDesign || hasToppings);
-  $("#flip-chocolate").setAttribute("aria-pressed", String(state.previewBack));
+  $("#flip-chocolate").textContent = state.previewBack ? "↻ Vis forsiden" : "↻ Vis baksiden";
   const showGreeting = state.decoration === "text" && Boolean(state.text.trim()) && !state.previewBack;
   bar.dataset.textDecoration = String(showGreeting);
   const barName = $("#bar-name");
@@ -248,14 +244,16 @@ function updatePreview() {
   $("#preview-chocolate").textContent = chocolate.name;
   const selected = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   $("#preview-toppings").textContent = selected.length
-    ? selected.map((topping) => topping.name).join(" · ")
+    ? `${selected.length} ${selected.length === 1 ? "type" : "typer"} topping · ${selected.map((topping) => topping.name).join(", ")}`
     : "Uten topping";
+  $("#topping-quantity-note").hidden = !selected.length;
 
   const pieces = selected.length ? Array.from({ length: 24 }, (_, index) => {
     const piece = createToppingShape(selected[(index * 7) % selected.length], true);
-    piece.style.left = `${8 + (index % 6) * 16 + (index * 3 % 7)}%`;
-    piece.style.top = `${10 + Math.floor(index / 6) * 24 + (index * 5 % 9)}%`;
+    piece.style.left = `${7 + (index % 6) * 16 + (index * 17 % 11)}%`;
+    piece.style.top = `${7 + Math.floor(index / 6) * 24 + (index * 13 % 15)}%`;
     piece.style.setProperty("--piece-rotation", `${index * 37 % 360}deg`);
+    piece.style.setProperty("--preview-piece-scale", String(0.76 + (index * 7 % 11) * 0.035));
     return piece;
   }) : [];
   $("#bar-toppings").replaceChildren(...pieces);
@@ -283,6 +281,10 @@ function updatePreview() {
     imageFee && `bilde +${imageFee} kr`, shapeFee && `form +${shapeFee} kr`,
     packagingFee && `emballasje +${packagingFee} kr`].filter(Boolean).join(" · ");
   $("#preview-allergens").textContent = `Oppgitte allergener for hele platen: ${getAllergens().join(", ")}`;
+  const unverified = selected.filter((topping) => !topping.allergens?.length).map((topping) => topping.name);
+  $("#preview-allergen-note").textContent = unverified.length
+    ? `Allergenopplysninger mangler for ${unverified.join(", ")}. Avklar ingredienser og spor med leverandøren.`
+    : "Foreløpige opplysninger. Avklar ingredienser og spor med leverandøren.";
   updatePackagingPreview();
 }
 
@@ -611,10 +613,10 @@ function drawBearFace(context, x, y, width, height) {
   context.stroke();
 }
 
-async function createDesignImage(forOrder = false) {
+async function createDesignImage() {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
-  canvas.height = forOrder ? 640 : 820;
+  canvas.height = 820;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Kunne ikke lage et bilde av designet.");
 
@@ -622,20 +624,18 @@ async function createDesignImage(forOrder = false) {
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.fillStyle = "#361c1b";
   context.font = "700 48px Georgia, serif";
-  if (!forOrder) context.fillText("Min sjokoladeplate", 80, 90);
+  context.fillText("Min sjokoladeplate", 80, 90);
   context.fillStyle = "#6e5d58";
   context.font = "24px Arial, sans-serif";
 
   const organicShape = state.shape !== "rektangel";
-  const previewBack = forOrder
-    ? state.imageMode === "back" || (!state.imageUrl && !state.text.trim() && state.selectedToppings.size > 0)
-    : state.previewBack;
+  const previewBack = state.previewBack;
   const hasFrontImage = state.imageMode === "plate" && state.imageUrl && !previewBack;
   const hasFrontText = state.decoration === "text" && state.text.trim() && !previewBack;
   const barHeight = organicShape ? 560 : 470;
-  const barWidth = organicShape ? 570 : (forOrder || hasFrontImage || hasFrontText) ? barHeight * 1.8 : 990;
+  const barWidth = organicShape ? 570 : (hasFrontImage || hasFrontText) ? barHeight * 1.8 : 990;
   const barX = (canvas.width - barWidth) / 2;
-  const barY = forOrder ? (canvas.height - barHeight) / 2 : organicShape ? 155 : 190;
+  const barY = organicShape ? 155 : 190;
   const [light, dark, piece] = chocolates[state.chocolate].colors;
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   const barGradient = context.createLinearGradient(barX, barY, barX + barWidth, barY + barHeight);
@@ -675,7 +675,7 @@ async function createDesignImage(forOrder = false) {
     await image.decode();
     context.drawImage(image, barX, barY, barWidth, barHeight);
   } else {
-    if (forOrder ? previewBack : !previewBack && state.imageMode !== "plate") {
+    if (!previewBack && state.imageMode !== "plate") {
       const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
       selectedToppings.forEach((topping, toppingIndex) => {
         for (let index = 0; index < 4; index += 1) {
@@ -708,8 +708,6 @@ async function createDesignImage(forOrder = false) {
   context.lineWidth = 7;
   drawChocolateShape(context, barX, barY, barWidth, barHeight, state.shape);
   context.stroke();
-
-  if (forOrder) return canvas.toDataURL("image/jpeg", 0.9);
 
   const selectedToppings = toppings.filter((topping) => state.selectedToppings.has(topping.name));
   const sideDescription = state.previewBack
@@ -1200,11 +1198,44 @@ $("#chat-form").addEventListener("submit", (event) => {
   suggestCombination(text);
 });
 
-$("#order-button").addEventListener("click", async (event) => {
+function captureOrderPlate() {
+  const bar = $("#chocolate-bar");
+  const face = $(state.previewBack ? ".chocolate-face--back" : ".chocolate-face--front");
+  const relief = $("#bar-relief");
+  if (!state.previewBack && !relief.hidden) renderRelief();
+
+  function capture(node, includeChildren = true) {
+    if (node.hidden) return null;
+    let image;
+    if (node instanceof HTMLCanvasElement) {
+      // Copy the WebGL buffer synchronously, before the browser clears it.
+      image = node.toDataURL("image/png");
+    } else if (node instanceof HTMLImageElement) {
+      if (!node.complete || !node.naturalWidth) return null;
+      const canvas = document.createElement("canvas");
+      const scale = Math.min(1, 1280 / Math.max(node.naturalWidth, node.naturalHeight));
+      canvas.width = Math.max(1, Math.round(node.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(node.naturalHeight * scale));
+      canvas.getContext("2d").drawImage(node, 0, 0, canvas.width, canvas.height);
+      image = canvas.toDataURL("image/png");
+    }
+    return {
+      className: node.className,
+      inline: node.tagName === "SPAN",
+      style: node.style.cssText,
+      image,
+      text: node.children.length || image ? "" : node.textContent,
+      children: includeChildren ? [...node.children].map((child) => capture(child)).filter(Boolean) : [],
+    };
+  }
+
+  const plate = capture(bar, false);
+  plate.children = [{ className: "chocolate-bar__inner", children: [capture(face)] }];
+  return { plate, appearance: { ...bar.dataset }, label: $("#flip-hint").textContent };
+}
+
+$("#order-button").addEventListener("click", (event) => {
   event.preventDefault();
-  const button = event.currentTarget;
-  if (button.hasAttribute("aria-busy")) return;
-  button.setAttribute("aria-busy", "true");
   const params = new URLSearchParams({
     chocolate: chocolates[state.chocolate].name,
     toppings: [...state.selectedToppings].join(", "),
@@ -1215,16 +1246,14 @@ $("#order-button").addEventListener("click", async (event) => {
     name: state.plateName,
     packaging: state.packaging,
     allergens: getAllergens().join(", "),
+    allergenNote: $("#preview-allergen-note").textContent,
   });
   const query = params.toString();
   try {
     sessionStorage.removeItem("chocolate-order-preview");
-    const image = await createDesignImage(true);
-    sessionStorage.setItem("chocolate-order-preview", JSON.stringify({ query, image }));
+    sessionStorage.setItem("chocolate-order-preview", JSON.stringify({ query, ...captureOrderPlate() }));
   } catch {
     // The order form can still open if the preview cannot be exported or stored.
-  } finally {
-    button.removeAttribute("aria-busy");
   }
   window.location.href = `bestilling.html?${query}`;
 });

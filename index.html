@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=plate-preview-2">
+  <script src="app.js?v=plate-preview-2" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -133,7 +133,7 @@
           </div>
           <div class="decoration-options" role="group" aria-label="Dekor på platen">
             <button type="button" class="selected" data-decoration="none" aria-pressed="true">Ingenting</button>
-            <button type="button" data-decoration="image" aria-pressed="false">Last opp eget bilde</button>
+            <button type="button" data-decoration="image" aria-pressed="false">Last opp eget bilde (+29 kr)</button>
             <button type="button" data-decoration="text" aria-pressed="false">Skriv en hilsen</button>
           </div>
           <div id="image-fields" hidden>
@@ -203,7 +203,7 @@
           <h2 id="preview-title">Din sjokoladeplate</h2>
         </div>
         <div class="preview-stage">
-          <p class="flip-hint" id="flip-hint" aria-live="polite">Forside · toppingene</p>
+          <p class="flip-hint" id="flip-hint" aria-live="polite">Melkesjokolade · Forside</p>
           <div class="chocolate-bar" id="chocolate-bar" aria-label="Melkesjokoladeplate">
             <div class="chocolate-bar__inner">
               <div class="chocolate-face chocolate-face--front">
@@ -229,12 +229,14 @@
             <span class="selected-packaging__box selected-packaging__box--standard" aria-hidden="true"><span></span></span>
             <span id="selected-packaging-text">Standardemballasje</span>
           </div>
-          <button type="button" class="flip-button" id="flip-chocolate" hidden aria-pressed="false">↻ Snu sjokoladen</button>
+          <button type="button" class="flip-button" id="flip-chocolate" aria-controls="chocolate-bar" hidden>↻ Vis baksiden</button>
         </div>
         <div class="preview-details">
           <strong id="preview-chocolate">Melkesjokolade</strong>
           <p id="preview-toppings">Uten topping</p>
+          <p class="quantity-note" id="topping-quantity-note" hidden>Bitene viser hvordan toppingene kan fordeles. Mengde per plate er ikke fastsatt.</p>
           <p class="allergen-preview" id="preview-allergens">Oppgitte allergener for hele platen: Melk, Soya</p>
+          <p class="allergen-disclaimer" id="preview-allergen-note">Foreløpige opplysninger. Avklar ingredienser og spor med leverandøren.</p>
           <p class="price-note" id="price-breakdown">Plate 179 kr</p>
           <div class="price-row"><span>Totalpris (demo)</span><strong id="preview-price">179 kr</strong></div>
           <a class="order-button order-button--link" id="order-button" href="bestilling.html">Bestill <span aria-hidden="true">→</span></a>
